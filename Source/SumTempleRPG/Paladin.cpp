@@ -39,9 +39,34 @@ APaladin::APaladin()
 
 	MaxHealth = 100.f;
 	Health = 65.f;
-	MaxStamina = 350.f;
+	MaxStamina = 150.f;
 	Stamina = 120.f;
 	Coins = 0;
+
+	RunningSpeed = 650.f;
+	SprintingSpeed = 950.f;
+
+	bShiftKeyDown = false;
+
+	MovementStatus = EMovementStatus::EMS_Normal;
+	StaminaStatus = EStaminaStatus::ESS_Normal;
+
+	StaminaDrainRate = 25.f;
+	MinSprintingStamina = 50.f;
+}
+
+void APaladin::SetMovementStatus(EMovementStatus Status)
+{
+	MovementStatus = Status;
+
+	if(MovementStatus == EMovementStatus::EMS_Sprinting)
+	{
+		GetCharacterMovement()->MaxWalkSpeed = SprintingSpeed;
+	}
+	else
+	{
+		GetCharacterMovement()->MaxWalkSpeed = RunningSpeed;
+	}
 }
 
 void APaladin::DecrementHealth(float Amount)
@@ -75,6 +100,81 @@ void APaladin::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	float DeltaStamina = StaminaDrainRate * DeltaTime;
+
+	switch (StaminaStatus)
+	{
+	case EStaminaStatus::ESS_Normal:
+		if(bShiftKeyDown)
+		{
+			Stamina -= DeltaStamina;
+			if(Stamina <= MinSprintingStamina)
+			{
+				SetStaminaStatus(EStaminaStatus::ESS_BelowMinimum);
+			}
+			SetMovementStatus(EMovementStatus::EMS_Sprinting);
+		}
+		else
+		{	
+			if(Stamina + DeltaStamina >= MaxStamina)
+			{
+				Stamina = MaxStamina;
+			}
+			else
+			{
+				Stamina += DeltaStamina;
+			}
+			SetMovementStatus(EMovementStatus::EMS_Normal);
+		}
+		break;
+	case EStaminaStatus::ESS_BelowMinimum:
+		if(bShiftKeyDown)
+		{
+			if(Stamina - DeltaStamina <= 0.f)
+			{
+				SetStaminaStatus(EStaminaStatus::ESS_Exhausted);
+				Stamina = 0;
+				SetMovementStatus(EMovementStatus::EMS_Normal);
+			}
+			else
+			{
+				Stamina -= DeltaStamina;
+				SetMovementStatus(EMovementStatus::EMS_Sprinting);
+			}
+		}
+		else
+		{
+			Stamina += DeltaStamina;
+			if(Stamina + DeltaStamina >= MinSprintingStamina)
+			{
+				SetStaminaStatus(EStaminaStatus::ESS_Normal);
+			}
+			SetMovementStatus(EMovementStatus::EMS_Normal);
+		}
+		break;
+	case EStaminaStatus::ESS_Exhausted:
+		if(bShiftKeyDown)
+		{
+			Stamina = 0.f;
+		}
+		else
+		{
+			SetStaminaStatus(EStaminaStatus::ESS_ExhaustedRecovering);
+			Stamina += DeltaStamina;
+		}
+		SetMovementStatus(EMovementStatus::EMS_Normal);
+		break;
+	case EStaminaStatus::ESS_ExhaustedRecovering:
+		if(Stamina + DeltaStamina >= MinSprintingStamina)
+		{
+			SetStaminaStatus(EStaminaStatus::ESS_Normal);
+		}
+		Stamina += DeltaStamina;
+		SetMovementStatus(EMovementStatus::EMS_Normal);
+		break;
+	default :
+		;
+	}
 }
 
 // Called to bind functionality to input
@@ -85,6 +185,9 @@ void APaladin::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
+
+	PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &APaladin::ShiftKeyDown);
+	PlayerInputComponent->BindAction("Sprint", IE_Released, this, &APaladin::ShiftKeyUp);
 
 	PlayerInputComponent->BindAxis("MoveForward", this, &APaladin::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &APaladin::MoveRight);
@@ -128,5 +231,15 @@ void APaladin::TurnAtRate(float Rate)
 void APaladin::LookUpAtRate(float Rate)
 {
 	AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
+}
+
+void APaladin::ShiftKeyDown()
+{
+	bShiftKeyDown = true;
+}
+
+void APaladin::ShiftKeyUp()
+{
+	bShiftKeyDown = false;
 }
 

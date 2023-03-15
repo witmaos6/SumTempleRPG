@@ -4,12 +4,18 @@
 #include "PaladinAnimInstance.h"
 
 #include "GameFramework/PawnMovementComponent.h"
+#include "Paladin.h"
 
 void UPaladinAnimInstance::NativeInitializeAnimation()
 {
 	if(Pawn == nullptr)
 	{
 		Pawn = TryGetPawnOwner();
+
+		if(Pawn)
+		{
+			Paladin = Cast<APaladin>(Pawn);
+		}
 	}
 }
 
@@ -27,5 +33,10 @@ void UPaladinAnimInstance::UpdateAnimationProperties()
 		MovementSpeed = LateralSpeed.Size();
 
 		bIsInAir = Pawn->GetMovementComponent()->IsFalling();
+
+		if(Paladin == nullptr)
+		{
+			Paladin = Cast<APaladin>(Pawn);
+		}
 	}
 }
