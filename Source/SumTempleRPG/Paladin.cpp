@@ -44,6 +44,25 @@ APaladin::APaladin()
 	Coins = 0;
 }
 
+void APaladin::DecrementHealth(float Amount)
+{
+	Health -= Amount;
+	if(Health - Amount <= 0.f)
+	{
+		Die();
+	}
+}
+
+void APaladin::IncrementCoin(int32 Amount)
+{
+	Coins += Amount;
+}
+
+void APaladin::Die()
+{
+
+}
+
 // Called when the game starts or when spawned
 void APaladin::BeginPlay()
 {
