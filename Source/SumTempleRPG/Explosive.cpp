@@ -20,6 +20,8 @@ void AExplosive::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor
 		if(Paladin)
 		{
 			Paladin->DecrementHealth(Damage);
+
+			Destroy();
 		}
 	}
 }

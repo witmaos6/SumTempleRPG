@@ -7,6 +7,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Kismet/KismetSystemLibrary.h"
 
 // Sets default values
 APaladin::APaladin()
@@ -92,7 +93,7 @@ void APaladin::Die()
 void APaladin::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 }
 
 // Called every frame

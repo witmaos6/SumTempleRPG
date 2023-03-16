@@ -115,4 +115,9 @@ public:
 	void ShiftKeyDown();
 
 	void ShiftKeyUp();
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Items)
+	class AWeapon* EquipWeapon;
+
+	FORCEINLINE void SetEquipWeapon(AWeapon* WeaponToSet) { EquipWeapon = WeaponToSet; }
 };

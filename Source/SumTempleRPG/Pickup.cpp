@@ -20,6 +20,8 @@ void APickup::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* O
 		if(Paladin)
 		{
 			Paladin->IncrementCoin(CoinCount);
+
+			Destroy();
 		}
 	}
 }
