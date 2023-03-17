@@ -116,8 +116,21 @@ public:
 
 	void ShiftKeyUp();
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Items)
+	bool bLMBDown;
+
+	void LMBDown();
+
+	void LMBUp();
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Items")
 	class AWeapon* EquipWeapon;
 
-	FORCEINLINE void SetEquipWeapon(AWeapon* WeaponToSet) { EquipWeapon = WeaponToSet; }
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Items")
+	class AItem* ActiveOverlappingItem;
+
+	void SetEquipWeapon(AWeapon* WeaponToSet);
+
+	FORCEINLINE AWeapon* GetEquipWeapon() { return EquipWeapon; }
+
+	FORCEINLINE void SetActiveOverlappingItem(AItem* Item) { ActiveOverlappingItem = Item; }
 };

@@ -6,9 +6,16 @@
 #include "Item.h"
 #include "Weapon.generated.h"
 
+UENUM(BlueprintType)
+enum class EWeaponState : uint8
+{
+	EWS_Pickup UMETA(DisplayName = "Pickup"),
+	EWS_Equipped UMETA(DisplayName = "Equiped"),
+
+	EWS_MAX UMETA(DisplayName = "DefaultMax")
+};
 /**
- *  Item class를 상속 받았는데 굳이 이걸 상속받아야 하나 싶다.
- *	이 class 때문에 Item class에 OnOverlapBegin 함수에 있던 Destroy() 함수를 지웠는데 이건 설계 실패 상황이 아닐까 싶다.
+ *  
  */
 UCLASS()
 class SUMTEMPLERPG_API AWeapon : public AItem
@@ -17,6 +24,18 @@ class SUMTEMPLERPG_API AWeapon : public AItem
 	
 public:
 	AWeapon();
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Item")
+	EWeaponState WeaponState;
+
+	FORCEINLINE void SetWeaponState(EWeaponState State) { WeaponState = State; }
+	FORCEINLINE EWeaponState GetWeaponState() { return WeaponState; }
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item | Particles")
+	bool bWeaponParticle;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item | Sound")
+	USoundCue* OnEquipSound;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "SkeletalMesh")
 	USkeletalMeshComponent* SkeletalMesh;

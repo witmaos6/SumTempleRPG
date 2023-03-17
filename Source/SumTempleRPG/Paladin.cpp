@@ -8,6 +8,7 @@
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "Weapon.h"
 
 // Sets default values
 APaladin::APaladin()
@@ -49,11 +50,10 @@ APaladin::APaladin()
 
 	bShiftKeyDown = false;
 
-	MovementStatus = EMovementStatus::EMS_Normal;
-	StaminaStatus = EStaminaStatus::ESS_Normal;
-
 	StaminaDrainRate = 25.f;
 	MinSprintingStamina = 50.f;
+
+	bLMBDown = false;
 }
 
 void APaladin::SetMovementStatus(EMovementStatus Status)
@@ -94,6 +94,8 @@ void APaladin::BeginPlay()
 {
 	Super::BeginPlay();
 
+	MovementStatus = EMovementStatus::EMS_Normal;
+	StaminaStatus = EStaminaStatus::ESS_Normal;
 }
 
 // Called every frame
@@ -190,6 +192,9 @@ void APaladin::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &APaladin::ShiftKeyDown);
 	PlayerInputComponent->BindAction("Sprint", IE_Released, this, &APaladin::ShiftKeyUp);
 
+	PlayerInputComponent->BindAction("LMB", IE_Pressed, this, &APaladin::LMBDown);
+	PlayerInputComponent->BindAction("LMB", IE_Released, this, &APaladin::LMBUp);
+
 	PlayerInputComponent->BindAxis("MoveForward", this, &APaladin::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &APaladin::MoveRight);
 
@@ -242,5 +247,36 @@ void APaladin::ShiftKeyDown()
 void APaladin::ShiftKeyUp()
 {
 	bShiftKeyDown = false;
+}
+
+void APaladin::LMBDown()
+{
+	bLMBDown = true;
+
+	if(ActiveOverlappingItem)
+	{
+		AWeapon* Weapon = Cast<AWeapon>(ActiveOverlappingItem);
+
+		if(Weapon)
+		{
+			Weapon->Equip(this);
+			SetActiveOverlappingItem(nullptr);
+		}
+	}
+}
+
+void APaladin::LMBUp()
+{
+	bLMBDown = false;
+}
+
+void APaladin::SetEquipWeapon(AWeapon* WeaponToSet)
+{
+	if(EquipWeapon)
+	{
+		EquipWeapon->Destroy();
+	}
+
+	EquipWeapon = WeaponToSet;
 }
 
