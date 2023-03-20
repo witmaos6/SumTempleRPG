@@ -39,6 +39,9 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "SkeletalMesh")
 	USkeletalMeshComponent* SkeletalMesh;
+	// Character socket에 넣기 위해서는 static mesh가 아닌 Skeletal Mesh Component를 사용해야 한다.
+	// 지금 Item에 UStaticMeshComponent가 있고 Weapon에는 할당하지 않은 상태이기 때문에 문제가 발생하고 있다.
+	// class 설계 실패로 봐야하는 상황이 아닐까 싶다.
 
 	virtual void OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) override;
 

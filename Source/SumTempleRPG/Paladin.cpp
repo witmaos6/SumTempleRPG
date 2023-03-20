@@ -207,7 +207,7 @@ void APaladin::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 void APaladin::MoveForward(float Value)
 {
-	if(Controller && Value != 0.0f)
+	if(Controller && Value != 0.0f && (!bAttacking))
 	{
 		const FRotator Rotation = Controller->GetControlRotation();
 		const FRotator YawRotation(0.f, Rotation.Yaw, 0.f);
@@ -219,7 +219,7 @@ void APaladin::MoveForward(float Value)
 
 void APaladin::MoveRight(float Value)
 {
-	if (Controller && Value != 0.0f)
+	if (Controller && Value != 0.0f && (!bAttacking))
 	{
 		const FRotator Rotation = Controller->GetControlRotation();
 		const FRotator YawRotation(0.f, Rotation.Yaw, 0.f);
@@ -263,6 +263,10 @@ void APaladin::LMBDown()
 			SetActiveOverlappingItem(nullptr);
 		}
 	}
+	else if(EquipWeapon)
+	{
+		Attack();
+	}
 }
 
 void APaladin::LMBUp()
@@ -278,5 +282,43 @@ void APaladin::SetEquipWeapon(AWeapon* WeaponToSet)
 	}
 
 	EquipWeapon = WeaponToSet;
+}
+
+void APaladin::Attack()
+{
+	if(!bAttacking)
+	{
+		bAttacking = true;
+
+		UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+		if(AnimInstance && CombatMontage)
+		{
+			int32 Section = FMath::RandRange(0, 1);
+			switch (Section)
+			{
+			case 0:
+				AnimInstance->Montage_Play(CombatMontage, 1.8f);
+				AnimInstance->Montage_JumpToSection(FName("Attack_1"), CombatMontage);
+				break;
+			case 1:
+				AnimInstance->Montage_Play(CombatMontage, 2.2f);
+				AnimInstance->Montage_JumpToSection(FName("Attack_2"), CombatMontage);
+				break;
+			default:
+					;
+			}
+			
+		}
+	}
+}
+
+void APaladin::AttackEnd()
+{
+	bAttacking = false;
+
+	if(bLMBDown)
+	{
+		Attack();
+	}
 }
 
