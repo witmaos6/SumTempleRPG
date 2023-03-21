@@ -286,7 +286,7 @@ void APaladin::SetEquipWeapon(AWeapon* WeaponToSet)
 
 void APaladin::Attack()
 {
-	if(!bAttacking)
+	if(!bAttacking && !bPressedJump)
 	{
 		bAttacking = true;
 
