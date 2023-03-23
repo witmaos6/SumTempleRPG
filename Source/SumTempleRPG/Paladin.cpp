@@ -9,6 +9,8 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Weapon.h"
+#include "Kismet/GameplayStatics.h"
+#include "Sound/SoundCue.h"
 
 // Sets default values
 APaladin::APaladin()
@@ -307,7 +309,6 @@ void APaladin::Attack()
 			default:
 					;
 			}
-			
 		}
 	}
 }
@@ -319,6 +320,14 @@ void APaladin::AttackEnd()
 	if(bLMBDown)
 	{
 		Attack();
+	}
+}
+
+void APaladin::PlaySwingSound()
+{
+	if(EquipWeapon->SwingSound)
+	{
+		UGameplayStatics::PlaySound2D(this, EquipWeapon->SwingSound);
 	}
 }
 
