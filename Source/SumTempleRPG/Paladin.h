@@ -57,6 +57,19 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 	float MinSprintingStamina;
 
+	float InterpSpeed;
+
+	bool bInterpToEnemy;
+
+	void SetInterpToEnemy(bool Interp);
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
+	class AEnemy* CombatTarget;
+
+	FORCEINLINE void SetCombatTarget(AEnemy* Target) { CombatTarget = Target; }
+
+	FRotator GetLookAtRotationYaw(FVector Target);
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Running")
 	float RunningSpeed;
 

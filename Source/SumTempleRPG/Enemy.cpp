@@ -112,7 +112,7 @@ void AEnemy::CombatSphereOnOverlapBegin(UPrimitiveComponent* OverlappedComponent
 
 		if(Paladin)
 		{
-			// To do Set Yaw(Paladin->GetActorLocation);
+			Paladin->SetCombatTarget(this);
 			CombatTarget = Paladin;
 			bOverlappingCombatSphere = true;
 			Attack();
@@ -128,6 +128,7 @@ void AEnemy::CombatSphereOnOverlapEnd(UPrimitiveComponent* OverlappedComponent, 
 
 		if (Paladin)
 		{
+			Paladin->SetCombatTarget(nullptr);
 			bOverlappingCombatSphere = false;
 			if(EnemyMovementStatus != EEnemyMovementStatus::EMS_Attacking)
 			{

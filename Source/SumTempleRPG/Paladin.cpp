@@ -11,6 +11,9 @@
 #include "Weapon.h"
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundCue.h"
+#include "Kismet/KismetMathLibrary.h"
+#include "Enemy.h"
+#include "PaladinAnimInstance.h"
 
 // Sets default values
 APaladin::APaladin()
@@ -56,6 +59,9 @@ APaladin::APaladin()
 	MinSprintingStamina = 50.f;
 
 	bLMBDown = false;
+
+	InterpSpeed = 15.f;
+	bInterpToEnemy = false;
 }
 
 void APaladin::SetMovementStatus(EMovementStatus Status)
@@ -70,6 +76,18 @@ void APaladin::SetMovementStatus(EMovementStatus Status)
 	{
 		GetCharacterMovement()->MaxWalkSpeed = RunningSpeed;
 	}
+}
+
+void APaladin::SetInterpToEnemy(bool Interp)
+{
+	bInterpToEnemy = Interp;
+}
+
+FRotator APaladin::GetLookAtRotationYaw(FVector Target)
+{
+	FRotator LookAtRotation = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), Target);
+	FRotator LooAtRotationYaw(0.f, LookAtRotation.Yaw, 0.f);
+	return LooAtRotationYaw;
 }
 
 void APaladin::DecrementHealth(float Amount)
@@ -180,6 +198,14 @@ void APaladin::Tick(float DeltaTime)
 	default :
 		;
 	}
+
+	if(bInterpToEnemy && CombatTarget)
+	{
+		FRotator LookAtYaw = GetLookAtRotationYaw(CombatTarget->GetActorLocation());
+		FRotator InterpRotation = FMath::RInterpTo(GetActorRotation(), LookAtYaw, DeltaTime, InterpSpeed);
+
+		SetActorRotation(InterpRotation);
+	}
 }
 
 // Called to bind functionality to input
@@ -267,7 +293,10 @@ void APaladin::LMBDown()
 	}
 	else if(EquipWeapon)
 	{
-		Attack();
+		if(!GetMovementComponent()->IsFalling())
+		{
+			Attack();
+		}
 	}
 }
 
@@ -287,10 +316,11 @@ void APaladin::SetEquipWeapon(AWeapon* WeaponToSet)
 }
 
 void APaladin::Attack()
-{
-	if(!bAttacking && !bPressedJump)
+{	
+	if(!bAttacking)
 	{
 		bAttacking = true;
+		SetInterpToEnemy(true);
 
 		UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 		if(AnimInstance && CombatMontage)
@@ -316,7 +346,7 @@ void APaladin::Attack()
 void APaladin::AttackEnd()
 {
 	bAttacking = false;
-
+	SetInterpToEnemy(false);
 	if(bLMBDown)
 	{
 		Attack();
