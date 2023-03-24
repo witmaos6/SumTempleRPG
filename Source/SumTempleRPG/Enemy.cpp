@@ -29,7 +29,7 @@ AEnemy::AEnemy()
 	CombatSphere->InitSphereRadius(175.f);
 
 	CombatCollision = CreateDefaultSubobject<UBoxComponent>(TEXT("CombatCollision"));
-	CombatCollision->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, FName("EnemySocket"));
+	CombatCollision->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, "EnemySocket");
 
 	bOverlappingCombatSphere = false;
 
@@ -78,7 +78,6 @@ void AEnemy::AgroSphereOnOverlapBegin(UPrimitiveComponent* OverlappedComponent, 
 {
 	if(OtherActor)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("MoveToTarget"));
 		APaladin* Paladin = Cast<APaladin>(OtherActor);
 
 		if(Paladin)
