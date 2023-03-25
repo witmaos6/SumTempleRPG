@@ -214,7 +214,7 @@ void APaladin::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 	check(PlayerInputComponent); // if(PlayerInputComponent) 와 같은 기능이다. 할당이 안돼 있다면 함수를 종료시킨다.
 
-	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
+	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &APaladin::Jump);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
 
 	PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &APaladin::ShiftKeyDown);
@@ -265,6 +265,14 @@ void APaladin::TurnAtRate(float Rate)
 void APaladin::LookUpAtRate(float Rate)
 {
 	AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
+}
+
+void APaladin::Jump()
+{
+	if(!bAttacking)
+	{
+		Super::Jump();
+	}
 }
 
 void APaladin::ShiftKeyDown()

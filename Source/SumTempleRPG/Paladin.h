@@ -131,6 +131,8 @@ public:
 
 	void LookUpAtRate(float Rate);
 
+	virtual void Jump() override;
+
 	void ShiftKeyDown();
 
 	void ShiftKeyUp();
