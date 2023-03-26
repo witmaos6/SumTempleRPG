@@ -18,9 +18,6 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Item | Collision")
 	class USphereComponent* CollisionVolume;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Item | Mesh")
-	UStaticMeshComponent* Mesh;
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item | Particles")
 	UParticleSystemComponent* IdleParticlesComponent;
 

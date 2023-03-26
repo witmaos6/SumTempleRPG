@@ -6,6 +6,9 @@
 
 AExplosive::AExplosive()
 {
+	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
+	Mesh->SetupAttachment(RootComponent);
+
 	Damage = 15.f;
 }
 

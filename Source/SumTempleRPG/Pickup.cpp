@@ -7,6 +7,9 @@
 
 APickup::APickup()
 {
+	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
+	Mesh->SetupAttachment(RootComponent);
+
 	CoinCount = 1;
 }
 
