@@ -108,6 +108,8 @@ public:
 
 	void DecrementHealth(float Amount);
 
+	virtual float TakeDamage(float DamageAmount, const FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
+
 	void IncrementCoin(int32 Amount);
 
 	void Die();

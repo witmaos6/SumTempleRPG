@@ -99,6 +99,13 @@ void APaladin::DecrementHealth(float Amount)
 	}
 }
 
+float APaladin::TakeDamage(float DamageAmount, const FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	DecrementHealth(DamageAmount);
+
+	return DamageAmount;
+}
+
 void APaladin::IncrementCoin(int32 Amount)
 {
 	Coins += Amount;
@@ -106,7 +113,13 @@ void APaladin::IncrementCoin(int32 Amount)
 
 void APaladin::Die()
 {
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 
+	if (AnimInstance && CombatMontage)
+	{
+		AnimInstance->Montage_Play(CombatMontage, 1.0f);
+		AnimInstance->Montage_JumpToSection(FName("Death"));
+	}
 }
 
 // Called when the game starts or when spawned
