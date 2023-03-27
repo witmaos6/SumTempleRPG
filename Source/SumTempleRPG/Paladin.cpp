@@ -14,6 +14,7 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "Enemy.h"
 #include "PaladinAnimInstance.h"
+#include "PaladinPlayerController.h"
 
 // Sets default values
 APaladin::APaladin()
@@ -62,6 +63,8 @@ APaladin::APaladin()
 
 	InterpSpeed = 15.f;
 	bInterpToEnemy = false;
+
+	bHasCombatTarget = false;
 }
 
 void APaladin::SetMovementStatus(EMovementStatus Status)
@@ -129,6 +132,8 @@ void APaladin::BeginPlay()
 
 	MovementStatus = EMovementStatus::EMS_Normal;
 	StaminaStatus = EStaminaStatus::ESS_Normal;
+
+	PaladinPlayerController = Cast<APaladinPlayerController>(GetController());
 }
 
 // Called every frame
@@ -218,6 +223,16 @@ void APaladin::Tick(float DeltaTime)
 		FRotator InterpRotation = FMath::RInterpTo(GetActorRotation(), LookAtYaw, DeltaTime, InterpSpeed);
 
 		SetActorRotation(InterpRotation);
+	}
+
+	if(CombatTarget)
+	{
+		CombatTargetLocation = CombatTarget->GetActorLocation();
+
+		if(PaladinPlayerController)
+		{
+			PaladinPlayerController->EnemyLocation = CombatTargetLocation;
+		}
 	}
 }
 

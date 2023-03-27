@@ -6,6 +6,7 @@
 #include "AIController.h"
 #include "Components/SphereComponent.h"
 #include "Paladin.h"
+#include "PaladinPlayerController.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundCue.h"
@@ -35,8 +36,8 @@ AEnemy::AEnemy()
 
 	bOverlappingCombatSphere = false;
 
-	Health = 75.f;
 	MaxHealth = 100.f;
+	Health = 75.f;
 	Damage = 10.f;
 
 	AttackMinTime = 0.5f;
@@ -104,6 +105,16 @@ void AEnemy::AgroSphereOnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AA
 
 		if (Paladin)
 		{
+			if (Paladin->CombatTarget == this)
+			{
+				Paladin->SetCombatTarget(nullptr);
+			}
+			Paladin->SetHasCombatTarget(false);
+
+			if(Paladin->PaladinPlayerController)
+			{
+				Paladin->PaladinPlayerController->RemoveEnemyHealthBar();
+			}
 			SetEnemyMovementStatus(EEnemyMovementStatus::EMS_Idle);
 			if(AIController)
 			{
@@ -122,6 +133,13 @@ void AEnemy::CombatSphereOnOverlapBegin(UPrimitiveComponent* OverlappedComponent
 		if(Paladin)
 		{
 			Paladin->SetCombatTarget(this);
+			Paladin->SetHasCombatTarget(true);
+
+			if(Paladin->PaladinPlayerController)
+			{
+				Paladin->PaladinPlayerController->DisplayEnemyHealthBar();
+			}
+
 			CombatTarget = Paladin;
 			bOverlappingCombatSphere = true;
 			Attack();
@@ -137,10 +155,6 @@ void AEnemy::CombatSphereOnOverlapEnd(UPrimitiveComponent* OverlappedComponent, 
 
 		if (Paladin)
 		{
-			if(Paladin->CombatTarget == this)
-			{
-				Paladin->SetCombatTarget(nullptr);
-			}
 			bOverlappingCombatSphere = false;
 			if(EnemyMovementStatus != EEnemyMovementStatus::EMS_Attacking)
 			{

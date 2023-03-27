@@ -35,6 +35,17 @@ public:
 	// Sets default values for this character's properties
 	APaladin();
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
+	bool bHasCombatTarget;
+
+	FORCEINLINE void SetHasCombatTarget(bool HasTarget) { bHasCombatTarget = HasTarget; }
+
+	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "Combat")
+	FVector CombatTargetLocation;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Controller")
+	class APaladinPlayerController* PaladinPlayerController;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
 	UParticleSystem* HitParticles;
 
