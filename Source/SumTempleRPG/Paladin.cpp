@@ -116,6 +116,10 @@ void APaladin::IncrementCoin(int32 Amount)
 
 void APaladin::Die()
 {
+	if(MovementStatus == EMovementStatus::EMS_Dead)
+	{
+		return;
+	}
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 
 	if (AnimInstance && CombatMontage)
@@ -123,6 +127,7 @@ void APaladin::Die()
 		AnimInstance->Montage_Play(CombatMontage, 1.0f);
 		AnimInstance->Montage_JumpToSection(FName("Death"));
 	}
+	SetMovementStatus(EMovementStatus::EMS_Dead);
 }
 
 // Called when the game starts or when spawned
@@ -140,6 +145,11 @@ void APaladin::BeginPlay()
 void APaladin::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	if(MovementStatus == EMovementStatus::EMS_Dead)
+	{
+		return;
+	}
 
 	float DeltaStamina = StaminaDrainRate * DeltaTime;
 
@@ -297,7 +307,7 @@ void APaladin::LookUpAtRate(float Rate)
 
 void APaladin::Jump()
 {
-	if(!bAttacking)
+	if(!bAttacking && MovementStatus != EMovementStatus::EMS_Dead)
 	{
 		Super::Jump();
 	}
@@ -316,6 +326,11 @@ void APaladin::ShiftKeyUp()
 void APaladin::LMBDown()
 {
 	bLMBDown = true;
+
+	if(MovementStatus == EMovementStatus::EMS_Dead)
+	{
+		return;
+	}
 
 	if(ActiveOverlappingItem)
 	{
@@ -353,7 +368,7 @@ void APaladin::SetEquipWeapon(AWeapon* WeaponToSet)
 
 void APaladin::Attack()
 {	
-	if(!bAttacking)
+	if(!bAttacking && MovementStatus != EMovementStatus::EMS_Dead) // 캐릭터가 죽었을 때 컨트롤러를 해제시키는게 낫지 않을까?
 	{
 		bAttacking = true;
 		SetInterpToEnemy(true);
@@ -395,5 +410,11 @@ void APaladin::PlaySwingSound()
 	{
 		UGameplayStatics::PlaySound2D(this, EquipWeapon->SwingSound);
 	}
+}
+
+void APaladin::DeathEnd()
+{
+	GetMesh()->bPauseAnims = true;
+	GetMesh()->bNoSkeletonUpdate = true;
 }
 

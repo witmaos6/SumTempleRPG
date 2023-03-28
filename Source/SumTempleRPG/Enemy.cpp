@@ -275,7 +275,7 @@ float AEnemy::TakeDamage(float DamageAmount, const FDamageEvent& DamageEvent, AC
 {
 	Health -= DamageAmount;
 
-	if(Health - DamageAmount <= 0.f)
+	if(Health <= 0.f)
 	{
 		Die();
 	}
