@@ -39,6 +39,9 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
 	bool bHasCombatTarget;
 
+	UPROPERTY(BlueprintReadOnly, Category = "Controller")
+	bool bDied;
+
 	FORCEINLINE void SetHasCombatTarget(bool HasTarget) { bHasCombatTarget = HasTarget; }
 
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "Combat")

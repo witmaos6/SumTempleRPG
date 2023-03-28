@@ -65,6 +65,8 @@ APaladin::APaladin()
 	bInterpToEnemy = false;
 
 	bHasCombatTarget = false;
+
+	bDied = false;
 }
 
 void APaladin::SetMovementStatus(EMovementStatus Status)
@@ -116,10 +118,18 @@ void APaladin::IncrementCoin(int32 Amount)
 
 void APaladin::Die()
 {
-	if(MovementStatus == EMovementStatus::EMS_Dead)
+	if(bDied)
 	{
 		return;
 	}
+
+	GetMovementComponent()->StopMovementImmediately();
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	DetachFromControllerPendingDestroy();
+
+	SetLifeSpan(10.0f);
+
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 
 	if (AnimInstance && CombatMontage)
@@ -327,11 +337,6 @@ void APaladin::LMBDown()
 {
 	bLMBDown = true;
 
-	if(MovementStatus == EMovementStatus::EMS_Dead)
-	{
-		return;
-	}
-
 	if(ActiveOverlappingItem)
 	{
 		AWeapon* Weapon = Cast<AWeapon>(ActiveOverlappingItem);
@@ -368,7 +373,7 @@ void APaladin::SetEquipWeapon(AWeapon* WeaponToSet)
 
 void APaladin::Attack()
 {	
-	if(!bAttacking && MovementStatus != EMovementStatus::EMS_Dead) // 캐릭터가 죽었을 때 컨트롤러를 해제시키는게 낫지 않을까?
+	if(!bAttacking && MovementStatus)
 	{
 		bAttacking = true;
 		SetInterpToEnemy(true);
