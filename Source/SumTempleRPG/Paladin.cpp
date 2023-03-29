@@ -98,7 +98,7 @@ FRotator APaladin::GetLookAtRotationYaw(FVector Target)
 void APaladin::DecrementHealth(float Amount)
 {
 	Health -= Amount;
-	if(Health - Amount <= 0.f)
+	if(Health <= 0.f)
 	{
 		Die();
 	}
@@ -122,13 +122,13 @@ void APaladin::Die()
 	{
 		return;
 	}
+	if(EquipWeapon)
+	{
+		EquipWeapon->Destroy();
+	}
 
 	GetMovementComponent()->StopMovementImmediately();
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-
-	DetachFromControllerPendingDestroy();
-
-	SetLifeSpan(10.0f);
 
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 
@@ -138,6 +138,10 @@ void APaladin::Die()
 		AnimInstance->Montage_JumpToSection(FName("Death"));
 	}
 	SetMovementStatus(EMovementStatus::EMS_Dead);
+
+	DetachFromControllerPendingDestroy();
+
+	SetLifeSpan(1.5f);
 }
 
 // Called when the game starts or when spawned
@@ -317,7 +321,7 @@ void APaladin::LookUpAtRate(float Rate)
 
 void APaladin::Jump()
 {
-	if(!bAttacking && MovementStatus != EMovementStatus::EMS_Dead)
+	if(!bAttacking)
 	{
 		Super::Jump();
 	}
@@ -373,7 +377,7 @@ void APaladin::SetEquipWeapon(AWeapon* WeaponToSet)
 
 void APaladin::Attack()
 {	
-	if(!bAttacking && MovementStatus)
+	if(!bAttacking)
 	{
 		bAttacking = true;
 		SetInterpToEnemy(true);
