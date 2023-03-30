@@ -106,7 +106,22 @@ void APaladin::DecrementHealth(float Amount)
 
 float APaladin::TakeDamage(float DamageAmount, const FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
-	DecrementHealth(DamageAmount);
+	Health -= DamageAmount;
+	if (Health <= 0.f)
+	{
+		Die();
+
+		if(DamageCauser)
+		{
+			AEnemy* Enemy = Cast<AEnemy>(DamageCauser);
+
+			if (Enemy)
+			{
+				Enemy->bHasValidTarget = false;
+			}
+		}
+	}
+
 
 	return DamageAmount;
 }

@@ -46,6 +46,8 @@ AEnemy::AEnemy()
 	EnemyMovementStatus = EEnemyMovementStatus::EMS_Idle;
 
 	DeathDelay = 3.f;
+
+	bHasValidTarget = false;
 }
 
 // Called when the game starts or when spawned
@@ -105,6 +107,7 @@ void AEnemy::AgroSphereOnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AA
 
 		if (Paladin)
 		{
+			bHasValidTarget = false;
 			if (Paladin->CombatTarget == this)
 			{
 				Paladin->SetCombatTarget(nullptr);
@@ -132,6 +135,7 @@ void AEnemy::CombatSphereOnOverlapBegin(UPrimitiveComponent* OverlappedComponent
 
 		if(Paladin)
 		{
+			bHasValidTarget = true;
 			Paladin->SetCombatTarget(this);
 			Paladin->SetHasCombatTarget(true);
 
@@ -241,7 +245,7 @@ void AEnemy::DeactivateCollision()
 
 void AEnemy::Attack()
 {
-	if (Alive())
+	if (Alive() && bHasValidTarget)
 	{
 		if (AIController)
 		{
