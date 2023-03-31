@@ -67,6 +67,9 @@ APaladin::APaladin()
 	bHasCombatTarget = false;
 
 	bDied = false;
+
+	bMovingForward = false;
+	bMovingRight = false;
 }
 
 void APaladin::SetMovementStatus(EMovementStatus Status)
@@ -192,7 +195,14 @@ void APaladin::Tick(float DeltaTime)
 			{
 				SetStaminaStatus(EStaminaStatus::ESS_BelowMinimum);
 			}
-			SetMovementStatus(EMovementStatus::EMS_Sprinting);
+			if (bMovingForward || bMovingRight)
+			{
+				SetMovementStatus(EMovementStatus::EMS_Sprinting);
+			}
+			else
+			{
+				SetMovementStatus(EMovementStatus::EMS_Normal);
+			}
 		}
 		else
 		{	
@@ -219,7 +229,14 @@ void APaladin::Tick(float DeltaTime)
 			else
 			{
 				Stamina -= DeltaStamina;
-				SetMovementStatus(EMovementStatus::EMS_Sprinting);
+				if (bMovingForward || bMovingRight)
+				{
+					SetMovementStatus(EMovementStatus::EMS_Sprinting);
+				}
+				else
+				{
+					SetMovementStatus(EMovementStatus::EMS_Normal);
+				}
 			}
 		}
 		else
@@ -302,6 +319,7 @@ void APaladin::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 void APaladin::MoveForward(float Value)
 {
+	bMovingForward = false;
 	if(Controller && Value != 0.0f && (!bAttacking))
 	{
 		const FRotator Rotation = Controller->GetControlRotation();
@@ -309,11 +327,15 @@ void APaladin::MoveForward(float Value)
 
 		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
 		AddMovementInput(Direction, Value);
+
+		bMovingForward = true;
 	}
 }
 
 void APaladin::MoveRight(float Value)
 {
+	bMovingRight = false;
+
 	if (Controller && Value != 0.0f && (!bAttacking))
 	{
 		const FRotator Rotation = Controller->GetControlRotation();
@@ -321,6 +343,8 @@ void APaladin::MoveRight(float Value)
 
 		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 		AddMovementInput(Direction, Value);
+
+		bMovingRight = true;
 	}
 }
 

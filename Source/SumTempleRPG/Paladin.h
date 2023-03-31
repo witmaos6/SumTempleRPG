@@ -144,6 +144,10 @@ public:
 
 	void MoveRight(float Value);
 
+	bool bMovingForward;
+
+	bool bMovingRight;
+
 	void TurnAtRate(float Rate);
 
 	void LookUpAtRate(float Rate);
