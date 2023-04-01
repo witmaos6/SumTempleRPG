@@ -2,6 +2,8 @@
 
 
 #include "Explosive.h"
+
+#include "Enemy.h"
 #include "Paladin.h"
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundCue.h"
@@ -21,8 +23,9 @@ void AExplosive::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor
 	if(OtherActor)
 	{
 		APaladin* Paladin = Cast<APaladin>(OtherActor);
+		AEnemy* Enemy = Cast<AEnemy>(OtherActor);
 
-		if(Paladin)
+		if(Paladin || Enemy)
 		{
 			if (OverlapParticles)
 			{
@@ -33,7 +36,7 @@ void AExplosive::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor
 				UGameplayStatics::PlaySound2D(this, OverlapSound);
 			}
 
-			Paladin->DecrementHealth(Damage);
+			UGameplayStatics::ApplyDamage(OtherActor, Damage, nullptr, this, DamageTypeClass);
 
 			Destroy();
 		}
