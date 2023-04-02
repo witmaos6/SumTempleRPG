@@ -145,6 +145,7 @@ void APaladin::Die()
 		EquipWeapon->Destroy();
 	}
 
+	SetMovementStatus(EMovementStatus::EMS_Dead);
 	GetMovementComponent()->StopMovementImmediately();
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
@@ -154,12 +155,7 @@ void APaladin::Die()
 	{
 		AnimInstance->Montage_Play(CombatMontage, 1.0f);
 		AnimInstance->Montage_JumpToSection(FName("Death"));
-	}
-	SetMovementStatus(EMovementStatus::EMS_Dead);
-
-	DetachFromControllerPendingDestroy();
-
-	SetLifeSpan(1.5f);
+	}	
 }
 
 // Called when the game starts or when spawned
@@ -464,5 +460,50 @@ void APaladin::DeathEnd()
 {
 	GetMesh()->bPauseAnims = true;
 	GetMesh()->bNoSkeletonUpdate = true;
+}
+
+void APaladin::UpdateCombatTarget()
+{
+	TArray<AActor*> OverlappingActors;
+	GetOverlappingActors(OverlappingActors, EnemyFilter);
+
+	if(OverlappingActors.Num() == 0)
+	{
+		if(PaladinPlayerController)
+		{
+			PaladinPlayerController->RemoveEnemyHealthBar();
+		}
+		return;
+	}
+
+	AEnemy* ClosestEnemy = Cast<AEnemy>(OverlappingActors[0]);
+
+	if(ClosestEnemy)
+	{
+		FVector Location = GetActorLocation();
+
+		float MinDistance = (ClosestEnemy->GetActorLocation() - Location).Size();
+
+		for (auto Actor : OverlappingActors)
+		{
+			AEnemy* Enemy = Cast<AEnemy>(Actor);
+			if (Enemy)
+			{
+				float DistanceToActor = (Enemy->GetActorLocation() - Location).Size();
+				if(DistanceToActor < MinDistance)
+				{
+					MinDistance = DistanceToActor;
+					ClosestEnemy = Enemy;
+				}
+			}
+		}
+
+		if(PaladinPlayerController)
+		{
+			PaladinPlayerController->DisplayEnemyHealthBar();
+		}
+		SetCombatTarget(ClosestEnemy);
+		bHasCombatTarget = true;
+	}
 }
 

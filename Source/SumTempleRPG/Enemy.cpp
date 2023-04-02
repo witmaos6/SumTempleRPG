@@ -71,6 +71,9 @@ void AEnemy::BeginPlay()
 	CombatCollision->SetCollisionObjectType(ECollisionChannel::ECC_WorldDynamic);
 	CombatCollision->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 	CombatCollision->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
+
+	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
 }
 
 // Called every frame
@@ -113,12 +116,11 @@ void AEnemy::AgroSphereOnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AA
 			{
 				Paladin->SetCombatTarget(nullptr);
 			}
+
 			Paladin->SetHasCombatTarget(false);
 
-			if(Paladin->PaladinPlayerController)
-			{
-				Paladin->PaladinPlayerController->RemoveEnemyHealthBar();
-			}
+			Paladin->UpdateCombatTarget();
+
 			SetEnemyMovementStatus(EEnemyMovementStatus::EMS_Idle);
 			if(AIController)
 			{
@@ -140,10 +142,7 @@ void AEnemy::CombatSphereOnOverlapBegin(UPrimitiveComponent* OverlappedComponent
 			Paladin->SetCombatTarget(this);
 			Paladin->SetHasCombatTarget(true);
 
-			if(Paladin->PaladinPlayerController)
-			{
-				Paladin->PaladinPlayerController->DisplayEnemyHealthBar();
-			}
+			Paladin->UpdateCombatTarget();
 
 			CombatTarget = Paladin;
 			bOverlappingCombatSphere = true;
@@ -155,18 +154,32 @@ void AEnemy::CombatSphereOnOverlapBegin(UPrimitiveComponent* OverlappedComponent
 
 void AEnemy::CombatSphereOnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	if (OtherActor)
+	if (OtherActor && OtherComp)
 	{
 		APaladin* Paladin = Cast<APaladin>(OtherActor);
 
 		if (Paladin)
 		{
 			bOverlappingCombatSphere = false;
-			if(EnemyMovementStatus != EEnemyMovementStatus::EMS_Attacking)
+			MoveToTarget(Paladin);
+			CombatTarget = nullptr;
+
+			if(Paladin->CombatTarget == this)
 			{
-				MoveToTarget(Paladin);
-				CombatTarget = nullptr;
+				Paladin->SetCombatTarget(nullptr);
+				Paladin->bHasCombatTarget = false;
+				Paladin->UpdateCombatTarget();
 			}
+
+			if(Paladin->PaladinPlayerController)
+			{
+				USkeletalMeshComponent* PaladinMesh = Cast<USkeletalMeshComponent>(OtherComp);
+				if(PaladinMesh)
+				{
+					Paladin->PaladinPlayerController->RemoveEnemyHealthBar();
+				}
+			}
+
 			GetWorldTimerManager().ClearTimer(AttackTimer);
 		}
 	}
@@ -283,26 +296,35 @@ float AEnemy::TakeDamage(float DamageAmount, const FDamageEvent& DamageEvent, AC
 
 	if(Health <= 0.f)
 	{
-		Die();
+		Die(DamageCauser);
 	}
 
 	return DamageAmount;
 }
 
-void AEnemy::Die()
+void AEnemy::Die(AActor* Causer)
 {
+	SetEnemyMovementStatus(EEnemyMovementStatus::EMS_Dead);
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 	if (AnimInstance)
 	{
 		AnimInstance->Montage_Play(CombatMontage, 1.f);
 		AnimInstance->Montage_JumpToSection(FName("Death"), CombatMontage);
-	}
-	SetEnemyMovementStatus(EEnemyMovementStatus::EMS_Dead);
+	}	
 
 	CombatCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	AgroSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	CombatSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	bAttacking = false;
+
+	APaladin* Paladin = Cast<APaladin>(Causer);
+
+	if(Paladin)
+	{
+		Paladin->UpdateCombatTarget();
+	}
 }
 
 void AEnemy::DeathEnd()
