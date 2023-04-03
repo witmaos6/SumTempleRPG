@@ -11,8 +11,6 @@ APickup::APickup()
 {
 	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
 	Mesh->SetupAttachment(RootComponent);
-
-	CoinCount = 1;
 }
 
 void APickup::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -24,8 +22,7 @@ void APickup::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* O
 		APaladin* Paladin = Cast<APaladin>(OtherActor);
 		if(Paladin)
 		{
-			Paladin->IncrementCoin(CoinCount);
-
+			OnPickupBP(Paladin);
 			if (OverlapParticles)
 			{
 				UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), OverlapParticles, GetActorLocation(), FRotator(0.f), true);

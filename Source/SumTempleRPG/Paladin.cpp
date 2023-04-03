@@ -134,6 +134,18 @@ void APaladin::IncrementCoin(int32 Amount)
 	Coins += Amount;
 }
 
+void APaladin::IncrementHealth(float Amount)
+{
+	if(Health + Amount >= MaxHealth)
+	{
+		Health = MaxHealth;
+	}
+	else
+	{
+		Health += Amount;
+	}
+}
+
 void APaladin::Die()
 {
 	if(bDied)
