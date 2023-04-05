@@ -15,6 +15,7 @@
 #include "Enemy.h"
 #include "PaladinAnimInstance.h"
 #include "PaladinPlayerController.h"
+#include "STRSaveGame.h"
 
 // Sets default values
 APaladin::APaladin()
@@ -516,6 +517,58 @@ void APaladin::UpdateCombatTarget()
 		}
 		SetCombatTarget(ClosestEnemy);
 		bHasCombatTarget = true;
+	}
+}
+
+void APaladin::SwitchLevel(FName LevelName)
+{
+	UWorld* World = GetWorld();
+
+	if(World)
+	{
+		FString CurrentLevel = World->GetMapName();
+
+		if(*CurrentLevel != LevelName)
+		{
+			UGameplayStatics::OpenLevel(World, LevelName);
+		}
+	}
+}
+
+void APaladin::SaveGame()
+{
+	USTRSaveGame* SaveGameInstance = Cast<USTRSaveGame>(UGameplayStatics::CreateSaveGameObject(USTRSaveGame::StaticClass()));
+
+	// 너무 비효율적인 코드 같다.
+	// 물론 CharacterStats을 나중에 만들어 그런것이지만 이후에 캐릭터 정보를 복사하는 방식으로 수정해야겠다.
+	SaveGameInstance->CharacterStats.Health = Health;
+	SaveGameInstance->CharacterStats.MaxHealth = MaxHealth;
+	SaveGameInstance->CharacterStats.Stamina = Stamina;
+	SaveGameInstance->CharacterStats.MaxStamina = MaxStamina;
+	SaveGameInstance->CharacterStats.Coins = Coins;
+
+	SaveGameInstance->CharacterStats.Location = GetActorLocation();
+	SaveGameInstance->CharacterStats.Rotation = GetActorRotation();
+
+	UGameplayStatics::SaveGameToSlot(SaveGameInstance, SaveGameInstance->PlayerName, SaveGameInstance->UserIndex);
+}
+
+void APaladin::LoadGame(bool SetPosition)
+{
+	USTRSaveGame* LoadGameInstance = Cast<USTRSaveGame>(UGameplayStatics::CreateSaveGameObject(USTRSaveGame::StaticClass()));
+
+	LoadGameInstance = Cast<USTRSaveGame>(UGameplayStatics::LoadGameFromSlot(LoadGameInstance->PlayerName, LoadGameInstance->UserIndex));
+
+	Health = LoadGameInstance->CharacterStats.Health;
+	MaxHealth = LoadGameInstance->CharacterStats.MaxHealth;
+	Stamina = LoadGameInstance->CharacterStats.Stamina;
+	MaxStamina = LoadGameInstance->CharacterStats.MaxStamina;
+	Coins = LoadGameInstance->CharacterStats.Coins;
+
+	if(SetPosition)
+	{
+		SetActorLocation(LoadGameInstance->CharacterStats.Location);
+		SetActorRotation(LoadGameInstance->CharacterStats.Rotation);
 	}
 }
 
