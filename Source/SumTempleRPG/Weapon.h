@@ -25,6 +25,9 @@ class SUMTEMPLERPG_API AWeapon : public AItem
 public:
 	AWeapon();
 
+	UPROPERTY(EditDefaultsOnly, Category = "SaveDate")
+	FString Name;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Item")
 	EWeaponState WeaponState;
 
