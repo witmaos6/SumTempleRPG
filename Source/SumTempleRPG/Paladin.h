@@ -171,6 +171,12 @@ public:
 
 	void LMBUp();
 
+	bool bESCDown;
+
+	void ESCDown();
+
+	void ESCUp();
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Items")
 	class AWeapon* EquipWeapon;
 

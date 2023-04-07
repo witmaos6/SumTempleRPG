@@ -31,6 +31,17 @@ void APaladinPlayerController::BeginPlay()
 		FVector2D Alignment(0.f, 0.f);
 		EnemyHealthBar->SetAlignmentInViewport(Alignment);
 	}
+
+	if(WPauseMenu)
+	{
+		PauseMenu = CreateWidget<UUserWidget>(this, WPauseMenu);
+
+		if(PauseMenu)
+		{
+			PauseMenu->AddToViewport();
+			PauseMenu->SetVisibility(ESlateVisibility::Hidden);
+		}
+	}
 }
 
 void APaladinPlayerController::Tick(float DeltaTime)
@@ -65,5 +76,35 @@ void APaladinPlayerController::RemoveEnemyHealthBar()
 	{
 		bEnemyHealthBarVisible = false;
 		EnemyHealthBar->SetVisibility(ESlateVisibility::Hidden);
+	}
+}
+
+void APaladinPlayerController::DisplayPauseMenu_Implementation()
+{
+	if(PauseMenu)
+	{
+		bPauseMenuVisible = true;
+		PauseMenu->SetVisibility(ESlateVisibility::Visible);
+	}
+}
+
+void APaladinPlayerController::RemovePauseMenu_Implementation()
+{
+	if (PauseMenu)
+	{
+		bPauseMenuVisible = false;
+		PauseMenu->SetVisibility(ESlateVisibility::Hidden);
+	}
+}
+
+void APaladinPlayerController::TogglePauseMenu()
+{
+	if(bPauseMenuVisible)
+	{
+		RemovePauseMenu();
+	}
+	else
+	{
+		DisplayPauseMenu();
 	}
 }

@@ -72,6 +72,8 @@ APaladin::APaladin()
 
 	bMovingForward = false;
 	bMovingRight = false;
+
+	bESCDown = false;
 }
 
 void APaladin::SetMovementStatus(EMovementStatus Status)
@@ -314,6 +316,9 @@ void APaladin::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &APaladin::ShiftKeyDown);
 	PlayerInputComponent->BindAction("Sprint", IE_Released, this, &APaladin::ShiftKeyUp);
 
+	PlayerInputComponent->BindAction("ESC", IE_Pressed, this, &APaladin::ESCDown);
+	PlayerInputComponent->BindAction("ESC", IE_Released, this, &APaladin::ESCUp);
+
 	PlayerInputComponent->BindAction("LMB", IE_Pressed, this, &APaladin::LMBDown);
 	PlayerInputComponent->BindAction("LMB", IE_Released, this, &APaladin::LMBUp);
 
@@ -412,6 +417,21 @@ void APaladin::LMBDown()
 void APaladin::LMBUp()
 {
 	bLMBDown = false;
+}
+
+void APaladin::ESCDown()
+{
+	bESCDown = true;
+
+	if(PaladinPlayerController)
+	{
+		PaladinPlayerController->TogglePauseMenu();
+	}
+}
+
+void APaladin::ESCUp()
+{
+	bESCDown = false;
 }
 
 void APaladin::SetEquipWeapon(AWeapon* WeaponToSet)
