@@ -129,7 +129,6 @@ float APaladin::TakeDamage(float DamageAmount, const FDamageEvent& DamageEvent, 
 		}
 	}
 
-
 	return DamageAmount;
 }
 
@@ -161,8 +160,8 @@ void APaladin::Die()
 		EquipWeapon->Destroy();
 	}
 
+	UnPossessed();
 	SetMovementStatus(EMovementStatus::EMS_Dead);
-	GetMovementComponent()->StopMovementImmediately();
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
@@ -425,13 +424,28 @@ void APaladin::ESCDown()
 
 	if(PaladinPlayerController)
 	{
+		// UnPossessed(); 컨트롤러가 해제 되지만 Resume이 안된다.
+		// 현재 강의에서는 CanMove()라는 함수를 만들어 컨트롤을 제어하는데 너무 비효율적으로 보인다.
 		PaladinPlayerController->TogglePauseMenu();
 	}
 }
 
+//bool APaladin::CanMove(float Value) 컨트롤 할 때마다 이 연산을 처리하는 방식은 아무리 생각해도 아니다.
+//{
+//	if(PaladinPlayerController)
+//	{
+//		return Value != 0.0f && !bAttacking() Attacking같은 경우는 공격 중이라는 특수 상황에서 제어하는 것이기 때문에 납득이 된다.
+//			&& MovementStatus != EMovementStatus::EMS_Dead 죽은 상황이라면 컨트롤러를 UnPossess하고 리스폰 때 다시 Possess하는 방식이 맞지 않나?
+//			&& !PaladinPlayerController->bPauseMenuVisible;  이런식으로 계속 늘어나는건 너무 비효율적이라 생각된다. 
+//	}		제어해야할 버튼이 많아질수록 더더욱 비효율적일 것이다. 일일이 함수를 추가해야하고 영상에서도 Jump에 추가하는 것을 깜빡했다.
+//			댓글에서 AGameModeBase::SetPause함수나 EnableInput, DisableInput함수를 사용하는 것에 대해 이야기 하고 있다.
+//	return false;
+//}
+
 void APaladin::ESCUp()
 {
 	bESCDown = false;
+	// ReceivePossessed(PaladinPlayerController); 다시 캐릭터 제어권을 얻는 함수인데 다른 곳에서 구현해야 할 것 같다.
 }
 
 void APaladin::SetEquipWeapon(AWeapon* WeaponToSet)
