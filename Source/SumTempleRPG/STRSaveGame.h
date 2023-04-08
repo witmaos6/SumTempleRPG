@@ -34,6 +34,9 @@ struct FCharacterStats
 
 	UPROPERTY(VisibleAnywhere, Category = "SaveGameData")
 	FString WeaponName; // FString 대신 Enum을 쓸수 없나?
+
+	UPROPERTY(VisibleAnywhere, Category = "SaveGameData")
+	FString LevelName;
 };
 
 /**

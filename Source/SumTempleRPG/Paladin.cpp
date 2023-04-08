@@ -182,6 +182,13 @@ void APaladin::BeginPlay()
 	StaminaStatus = EStaminaStatus::ESS_Normal;
 
 	PaladinPlayerController = Cast<APaladinPlayerController>(GetController());
+
+	LoadGameNoSwitch();
+
+	if(PaladinPlayerController)
+	{
+		PaladinPlayerController->GameModeOnly();
+	}
 }
 
 // Called every frame
@@ -424,7 +431,7 @@ void APaladin::ESCDown()
 
 	if(PaladinPlayerController)
 	{
-		// UnPossessed(); 컨트롤러가 해제 되지만 Resume이 안된다.
+		// UnPossessed(); 컨트롤러가 해제 되지만 Resume이 안된다. -> SetPause를 사용하면 World전체가 멈추니 굳이 컨트롤러 해제를 할 필요가 없다.
 		// 현재 강의에서는 CanMove()라는 함수를 만들어 컨트롤을 제어하는데 너무 비효율적으로 보인다.
 		PaladinPlayerController->TogglePauseMenu();
 	}
@@ -581,6 +588,11 @@ void APaladin::SaveGame()
 	SaveGameInstance->CharacterStats.MaxStamina = MaxStamina;
 	SaveGameInstance->CharacterStats.Coins = Coins;
 
+	FString MapName = GetWorld()->GetMapName();
+	MapName.RemoveFromStart(GetWorld()->StreamingLevelsPrefix);
+
+	SaveGameInstance->CharacterStats.LevelName = MapName;
+
 	if(EquipWeapon)
 	{
 		SaveGameInstance->CharacterStats.WeaponName = EquipWeapon->Name;
@@ -620,9 +632,45 @@ void APaladin::LoadGame(bool SetPosition)
 		}
 	}
 
+	if (LoadGameInstance->CharacterStats.LevelName != TEXT(""))
+	{
+		FName LevelName(*LoadGameInstance->CharacterStats.LevelName);
+
+		SwitchLevel(LevelName);
+	}
+
 	if(SetPosition)
 	{
 		SetActorLocation(LoadGameInstance->CharacterStats.Location);
 		SetActorRotation(LoadGameInstance->CharacterStats.Rotation);
+	}
+}
+
+void APaladin::LoadGameNoSwitch() // Map을 이동할 때 정보를 전달해주기 위한 함수다.
+{
+	USTRSaveGame* LoadGameInstance = Cast<USTRSaveGame>(UGameplayStatics::CreateSaveGameObject(USTRSaveGame::StaticClass()));
+
+	LoadGameInstance = Cast<USTRSaveGame>(UGameplayStatics::LoadGameFromSlot(LoadGameInstance->PlayerName, LoadGameInstance->UserIndex));
+
+	Health = LoadGameInstance->CharacterStats.Health;
+	MaxHealth = LoadGameInstance->CharacterStats.MaxHealth;
+	Stamina = LoadGameInstance->CharacterStats.Stamina;
+	MaxStamina = LoadGameInstance->CharacterStats.MaxStamina;
+	Coins = LoadGameInstance->CharacterStats.Coins;
+
+	if (WeaponStorage)
+	{
+		AItemStorage* Weapons = GetWorld()->SpawnActor<AItemStorage>(WeaponStorage);
+		if (Weapons)
+		{
+			FString WeaponName = LoadGameInstance->CharacterStats.WeaponName;
+
+			if (Weapons->WeaponMap.Contains(WeaponName))
+			{
+				AWeapon* WeaponToEquip = GetWorld()->SpawnActor<AWeapon>(Weapons->WeaponMap[WeaponName]);
+
+				WeaponToEquip->Equip(this);
+			}
+		}
 	}
 }

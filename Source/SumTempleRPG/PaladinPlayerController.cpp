@@ -100,8 +100,7 @@ void APaladinPlayerController::RemovePauseMenu_Implementation()
 {
 	if (PauseMenu)
 	{
-		FInputModeGameOnly InputModeGameOnly;
-		SetInputMode(InputModeGameOnly);
+		GameModeOnly();
 
 		bShowMouseCursor = false;
 
@@ -109,6 +108,12 @@ void APaladinPlayerController::RemovePauseMenu_Implementation()
 
 		UGameplayStatics::SetGamePaused(GetWorld(), false);
 	}
+}
+
+void APaladinPlayerController::GameModeOnly()
+{
+	FInputModeGameOnly InputModeGameOnly;
+	SetInputMode(InputModeGameOnly);
 }
 
 void APaladinPlayerController::TogglePauseMenu()
