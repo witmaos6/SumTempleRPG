@@ -4,6 +4,7 @@
 #include "PaladinPlayerController.h"
 
 #include "Blueprint/UserWidget.h"
+#include "Kismet/GameplayStatics.h"
 
 
 void APaladinPlayerController::BeginPlay()
@@ -90,6 +91,8 @@ void APaladinPlayerController::DisplayPauseMenu_Implementation()
 		SetInputMode(InputModeGameAndUI);
 
 		bShowMouseCursor = true;
+
+		UGameplayStatics::SetGamePaused(GetWorld(), true);
 	}
 }
 
@@ -103,6 +106,8 @@ void APaladinPlayerController::RemovePauseMenu_Implementation()
 		bShowMouseCursor = false;
 
 		bPauseMenuVisible = false;
+
+		UGameplayStatics::SetGamePaused(GetWorld(), false);
 	}
 }
 

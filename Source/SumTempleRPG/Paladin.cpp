@@ -445,7 +445,6 @@ void APaladin::ESCDown()
 void APaladin::ESCUp()
 {
 	bESCDown = false;
-	// ReceivePossessed(PaladinPlayerController); 다시 캐릭터 제어권을 얻는 함수인데 다른 곳에서 구현해야 할 것 같다.
 }
 
 void APaladin::SetEquipWeapon(AWeapon* WeaponToSet)
