@@ -160,7 +160,7 @@ void APaladin::Die()
 		EquipWeapon->Destroy();
 	}
 
-	UnPossessed();
+	DisableInput(PaladinPlayerController);
 	SetMovementStatus(EMovementStatus::EMS_Dead);
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
@@ -182,8 +182,6 @@ void APaladin::BeginPlay()
 	StaminaStatus = EStaminaStatus::ESS_Normal;
 
 	PaladinPlayerController = Cast<APaladinPlayerController>(GetController());
-
-	LoadGameNoSwitch();
 
 	if(PaladinPlayerController)
 	{
