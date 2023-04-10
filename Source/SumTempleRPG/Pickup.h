@@ -26,4 +26,13 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "Pickup")
 	void OnPickupBP(class APaladin* Target);
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Item | Mesh")
+	bool bSineMove;
+
+private:
+	float RunningTime;
+
+protected:
+	virtual void Tick(float DeltaSeconds) override;
 };

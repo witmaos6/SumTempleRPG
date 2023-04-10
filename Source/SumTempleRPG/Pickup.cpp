@@ -11,6 +11,23 @@ APickup::APickup()
 {
 	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
 	Mesh->SetupAttachment(RootComponent);
+
+	bSineMove = false;
+	RunningTime = 0;
+}
+
+void APickup::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+
+	if(bSineMove)
+	{
+		FVector SineMove = GetActorLocation();
+		SineMove.Z += FMath::Sin(RunningTime);
+		SetActorLocation(SineMove);
+
+		RunningTime += DeltaSeconds;
+	}
 }
 
 void APickup::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
