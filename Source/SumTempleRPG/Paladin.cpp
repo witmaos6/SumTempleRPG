@@ -183,9 +183,15 @@ void APaladin::BeginPlay()
 
 	PaladinPlayerController = Cast<APaladinPlayerController>(GetController());
 
-	if(PaladinPlayerController)
+	FString Map = GetWorld()->GetMapName();
+	Map.RemoveFromStart(GetWorld()->StreamingLevelsPrefix);
+
+	if(Map != "SunTemple")
 	{
-		PaladinPlayerController->GameModeOnly();
+		if (PaladinPlayerController)
+		{
+			PaladinPlayerController->GameModeOnly();
+		}
 	}
 }
 
