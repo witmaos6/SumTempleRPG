@@ -7,6 +7,7 @@
 #include "Components/SphereComponent.h"
 #include "Paladin.h"
 #include "PaladinPlayerController.h"
+#include "Pickup.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundCue.h"
@@ -49,6 +50,9 @@ AEnemy::AEnemy()
 	DeathDelay = 3.f;
 
 	bHasValidTarget = false;
+
+	bDead = false;
+	DropCoin = FMath::RandRange(1, 3);
 }
 
 // Called when the game starts or when spawned
@@ -81,6 +85,10 @@ void AEnemy::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	if(Health <= 0)
+	{
+		bDead = true;
+	}
 }
 
 // Called to bind functionality to input

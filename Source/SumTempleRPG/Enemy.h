@@ -82,6 +82,11 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
 	float DeathDelay;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
+	bool bDead;
+
+	int32 DropCoin;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
