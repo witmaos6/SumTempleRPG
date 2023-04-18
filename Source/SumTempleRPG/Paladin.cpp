@@ -80,6 +80,7 @@ APaladin::APaladin()
 	GageRate = 20.f;
 
 	bChargeDown = false;
+	bChargeAttack = false;
 }
 
 void APaladin::SetMovementStatus(EMovementStatus Status)
@@ -461,8 +462,6 @@ void APaladin::ChargeUp()
 {
 	if(EquipWeapon && bChargeDown)
 	{
-		Gage = 0;
-		bChargeDown = false;
 		PaladinPlayerController->RemoveSkillGage();
 		GetWorldTimerManager().ClearTimer(ChargeTimer);
 
@@ -472,6 +471,8 @@ void APaladin::ChargeUp()
 			AnimInstance->Montage_Play(CombatMontage, 1.8f);
 			AnimInstance->Montage_JumpToSection(FName("ChargeAttack"), CombatMontage);
 		}
+		bChargeDown = false;
+		Gage = 0;
 	}
 }
 
@@ -731,4 +732,14 @@ void APaladin::LoadGameNoSwitch() // Map을 이동할 때 정보를 전달해주기 위한 함수
 			}
 		}
 	}
+}
+
+void APaladin::SetChargeBegin()
+{
+	bChargeAttack = true;
+}
+
+void APaladin::SetChargeEnd()
+{
+	bChargeAttack = false;
 }

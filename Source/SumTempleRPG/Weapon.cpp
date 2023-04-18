@@ -24,6 +24,7 @@ AWeapon::AWeapon()
 	WeaponState = EWeaponState::EWS_Pickup;
 
 	Damage = 25.f;
+	ChargeDamage = 25.f;
 }
 
 void AWeapon::BeginPlay()
@@ -72,6 +73,7 @@ void AWeapon::Equip(APaladin* Character)
 {
 	if(Character)
 	{
+		OwnerPaladin = Character;
 		SetInstigator(Character->GetController());
 
 		SkeletalMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
@@ -124,7 +126,15 @@ void AWeapon::CombatOnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AAc
 			}
 			if(DamageTypeClass)
 			{
-				UGameplayStatics::ApplyDamage(Enemy, Damage, WeaponInstigator, this, DamageTypeClass);
+				if(OwnerPaladin && OwnerPaladin->bChargeAttack)
+				{
+					UGameplayStatics::ApplyDamage(Enemy, Damage + ChargeDamage, WeaponInstigator, this, DamageTypeClass);
+					UE_LOG(LogTemp, Warning, TEXT("Charge Attack"));
+				}
+				else
+				{
+					UGameplayStatics::ApplyDamage(Enemy, Damage, WeaponInstigator, this, DamageTypeClass);
+				}
 			}
 		}
 	}

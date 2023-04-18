@@ -148,6 +148,9 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Skill")
 	bool bChargeDown;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Skill")
+	bool bChargeAttack;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -240,4 +243,10 @@ public:
 	void LoadGame(bool SetPosition);
 
 	void LoadGameNoSwitch();
+
+	UFUNCTION(BlueprintCallable)
+	void SetChargeBegin();
+
+	UFUNCTION(BlueprintCallable)
+	void SetChargeEnd();
 };
