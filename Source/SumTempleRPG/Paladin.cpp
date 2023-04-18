@@ -74,6 +74,12 @@ APaladin::APaladin()
 	bMovingRight = false;
 
 	bESCDown = false;
+
+	MaxGage = 100.f;
+	Gage = 0.f;
+	GageRate = 20.f;
+
+	bChargeDown = false;
 }
 
 void APaladin::SetMovementStatus(EMovementStatus Status)
@@ -107,6 +113,7 @@ void APaladin::DecrementHealth(float Amount)
 	Health -= Amount;
 	if(Health <= 0.f)
 	{
+		Health = 0.f;
 		Die();
 	}
 }
@@ -332,6 +339,9 @@ void APaladin::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	PlayerInputComponent->BindAction("LMB", IE_Pressed, this, &APaladin::LMBDown);
 	PlayerInputComponent->BindAction("LMB", IE_Released, this, &APaladin::LMBUp);
 
+	PlayerInputComponent->BindAction("Charge", IE_Pressed, this, &APaladin::ChargeDown);
+	PlayerInputComponent->BindAction("Charge", IE_Released, this, &APaladin::ChargeUp);
+
 	PlayerInputComponent->BindAxis("MoveForward", this, &APaladin::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &APaladin::MoveRight);
 
@@ -427,6 +437,50 @@ void APaladin::LMBDown()
 void APaladin::LMBUp()
 {
 	bLMBDown = false;
+}
+
+void APaladin::ChargeDown()
+{
+	if(EquipWeapon && !bChargeDown)
+	{
+		bChargeDown = true;
+		PaladinPlayerController->DisplaySkillGage();
+
+		UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+		if(AnimInstance && CombatMontage)
+		{
+			AnimInstance->Montage_Play(CombatMontage, 0.2f);
+			AnimInstance->Montage_JumpToSection(FName("ReadyCharge"), CombatMontage);
+
+			GetWorldTimerManager().SetTimer(ChargeTimer, this, &APaladin::GageUp, 0.5f, true, 0.0f);
+		}
+	}
+}
+
+void APaladin::ChargeUp()
+{
+	if(EquipWeapon && bChargeDown)
+	{
+		Gage = 0;
+		bChargeDown = false;
+		PaladinPlayerController->RemoveSkillGage();
+		GetWorldTimerManager().ClearTimer(ChargeTimer);
+
+		UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+		if (AnimInstance && CombatMontage)
+		{
+			AnimInstance->Montage_Play(CombatMontage, 1.8f);
+			AnimInstance->Montage_JumpToSection(FName("ChargeAttack"), CombatMontage);
+		}
+	}
+}
+
+void APaladin::GageUp()
+{
+	if(bChargeDown &&  MaxGage >= Gage)
+	{
+		Gage += GageRate;
+	}
 }
 
 void APaladin::ESCDown()

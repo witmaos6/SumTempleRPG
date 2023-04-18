@@ -43,6 +43,17 @@ void APaladinPlayerController::BeginPlay()
 			PauseMenu->SetVisibility(ESlateVisibility::Hidden);
 		}
 	}
+
+	if(WSkillGage)
+	{
+		SkillGage = CreateWidget<UUserWidget>(this, WSkillGage);
+
+		if(SkillGage)
+		{
+			SkillGage->AddToViewport();
+			SkillGage->SetVisibility(ESlateVisibility::Hidden);
+		}
+	}
 }
 
 void APaladinPlayerController::Tick(float DeltaTime)
@@ -114,6 +125,22 @@ void APaladinPlayerController::GameModeOnly()
 {
 	FInputModeGameOnly InputModeGameOnly;
 	SetInputMode(InputModeGameOnly);
+}
+
+void APaladinPlayerController::DisplaySkillGage()
+{
+	if(SkillGage)
+	{
+		SkillGage->SetVisibility(ESlateVisibility::Visible);
+	}
+}
+
+void APaladinPlayerController::RemoveSkillGage()
+{
+	if(SkillGage)
+	{
+		SkillGage->SetVisibility(ESlateVisibility::Hidden);
+	}
 }
 
 void APaladinPlayerController::TogglePauseMenu()

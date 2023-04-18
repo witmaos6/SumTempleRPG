@@ -34,6 +34,12 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Widgets")
 	UUserWidget* PauseMenu;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
+	TSubclassOf<UUserWidget> WSkillGage;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Widgets")
+	UUserWidget* SkillGage;
+
 	bool bEnemyHealthBarVisible;
 
 	void DisplayEnemyHealthBar();
@@ -53,6 +59,10 @@ public:
 	FVector EnemyLocation;
 
 	void GameModeOnly();
+
+	void DisplaySkillGage();
+
+	void RemoveSkillGage();
 
 protected:
 	virtual void BeginPlay() override;

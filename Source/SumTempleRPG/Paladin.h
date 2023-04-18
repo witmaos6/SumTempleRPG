@@ -136,6 +136,18 @@ public:
 
 	void Die();
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gage")
+	float MaxGage;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Gage")
+	float Gage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gage")
+	float GageRate;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Skill")
+	bool bChargeDown;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -171,11 +183,19 @@ public:
 
 	void LMBUp();
 
+	void ChargeDown();
+
+	void ChargeUp();
+
+	void GageUp();
+
 	bool bESCDown;
 
 	void ESCDown();
 
 	void ESCUp();
+
+	FTimerHandle ChargeTimer;;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Items")
 	class AWeapon* EquipWeapon;
