@@ -24,7 +24,7 @@ AWeapon::AWeapon()
 	WeaponState = EWeaponState::EWS_Pickup;
 
 	Damage = 25.f;
-	ChargeDamage = 25.f;
+	ChargeDamage = 0.f;
 }
 
 void AWeapon::BeginPlay()
@@ -129,7 +129,6 @@ void AWeapon::CombatOnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AAc
 				if(OwnerPaladin && OwnerPaladin->bChargeAttack)
 				{
 					UGameplayStatics::ApplyDamage(Enemy, Damage + ChargeDamage, WeaponInstigator, this, DamageTypeClass);
-					UE_LOG(LogTemp, Warning, TEXT("Charge Attack"));
 				}
 				else
 				{

@@ -75,9 +75,9 @@ APaladin::APaladin()
 
 	bESCDown = false;
 
-	MaxGage = 100.f;
+	MaxGage = 50.f;
 	Gage = 0.f;
-	GageRate = 20.f;
+	GageRate = 10.f;
 
 	bChargeDown = false;
 	bChargeAttack = false;
@@ -320,6 +320,11 @@ void APaladin::Tick(float DeltaTime)
 			PaladinPlayerController->EnemyLocation = CombatTargetLocation;
 		}
 	}
+
+	if(EquipWeapon && bChargeDown)
+	{
+		EquipWeapon->ChargeDamage = Gage;
+	}
 }
 
 // Called to bind functionality to input
@@ -472,7 +477,6 @@ void APaladin::ChargeUp()
 			AnimInstance->Montage_JumpToSection(FName("ChargeAttack"), CombatMontage);
 		}
 		bChargeDown = false;
-		Gage = 0;
 	}
 }
 
@@ -741,5 +745,6 @@ void APaladin::SetChargeBegin()
 
 void APaladin::SetChargeEnd()
 {
+	Gage = 0;
 	bChargeAttack = false;
 }
