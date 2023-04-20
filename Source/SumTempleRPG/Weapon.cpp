@@ -25,6 +25,8 @@ AWeapon::AWeapon()
 
 	Damage = 25.f;
 	ChargeDamage = 0.f;
+	DamageRadial = 200.f;
+	CastingDamage = 50.f;
 }
 
 void AWeapon::BeginPlay()

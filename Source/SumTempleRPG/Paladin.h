@@ -151,6 +151,12 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Skill")
 	bool bChargeAttack;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Skill")
+	bool bCastingDown;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Skill")
+	bool bCastingAttack;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -192,13 +198,25 @@ public:
 
 	void GageUp();
 
+	void CastingDown();
+
+	void CastingUp();
+
+	UFUNCTION(BlueprintCallable)
+	void CastingSkill();
+
+	UFUNCTION(BlueprintCallable)
+	void CastingAttack();
+
 	bool bESCDown;
 
 	void ESCDown();
 
 	void ESCUp();
 
-	FTimerHandle ChargeTimer;;
+	FTimerHandle ChargeTimer;
+
+	FTimerHandle CastingTimer;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Items")
 	class AWeapon* EquipWeapon;
@@ -249,4 +267,7 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void SetChargeEnd();
+
+	UFUNCTION(BlueprintCallable)
+	void SetCastingEnd();
 };

@@ -49,6 +49,12 @@ public:
 	// 지금 Item에 UStaticMeshComponent가 있고 Weapon에는 할당하지 않은 상태이기 때문에 문제가 발생하고 있다.
 	// class 설계 실패로 봐야하는 상황이 아닐까 싶다.
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SKill")
+	UParticleSystem* CastingParticle;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Skill")
+	USoundCue* CastingSound;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Item | Combat")
 	class UBoxComponent* CombatCollision;
 
@@ -57,6 +63,12 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Skill")
 	float ChargeDamage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Skill")
+	float DamageRadial;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Skill")
+	float CastingDamage;
 
 protected:
 

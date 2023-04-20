@@ -81,6 +81,9 @@ APaladin::APaladin()
 
 	bChargeDown = false;
 	bChargeAttack = false;
+
+	bCastingDown = false;
+	bCastingAttack = false;
 }
 
 void APaladin::SetMovementStatus(EMovementStatus Status)
@@ -348,6 +351,9 @@ void APaladin::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	PlayerInputComponent->BindAction("Charge", IE_Pressed, this, &APaladin::ChargeDown);
 	PlayerInputComponent->BindAction("Charge", IE_Released, this, &APaladin::ChargeUp);
 
+	PlayerInputComponent->BindAction("Casting", IE_Pressed, this, &APaladin::CastingDown);
+	PlayerInputComponent->BindAction("Casting", IE_Released, this, &APaladin::CastingUp);
+
 	PlayerInputComponent->BindAxis("MoveForward", this, &APaladin::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &APaladin::MoveRight);
 
@@ -451,11 +457,12 @@ void APaladin::ChargeDown()
 	{
 		bChargeDown = true;
 		PaladinPlayerController->DisplaySkillGage();
+		SetInterpToEnemy(true);
 
 		UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 		if(AnimInstance && CombatMontage)
 		{
-			AnimInstance->Montage_Play(CombatMontage, 0.2f);
+			AnimInstance->Montage_Play(CombatMontage, 0.5f);
 			AnimInstance->Montage_JumpToSection(FName("ReadyCharge"), CombatMontage);
 
 			GetWorldTimerManager().SetTimer(ChargeTimer, this, &APaladin::GageUp, 0.5f, true, 0.0f);
@@ -467,6 +474,7 @@ void APaladin::ChargeUp()
 {
 	if(EquipWeapon && bChargeDown)
 	{
+		SetInterpToEnemy(false);
 		PaladinPlayerController->RemoveSkillGage();
 		GetWorldTimerManager().ClearTimer(ChargeTimer);
 
@@ -482,10 +490,76 @@ void APaladin::ChargeUp()
 
 void APaladin::GageUp()
 {
-	if(bChargeDown &&  MaxGage >= Gage)
+	if(MaxGage >= Gage)
 	{
 		Gage += GageRate;
 	}
+}
+
+void APaladin::CastingDown()
+{
+	if(!bCastingAttack && EquipWeapon)
+	{
+		bCastingDown = true;
+	}
+}
+
+void APaladin::CastingUp()
+{
+	if(bCastingDown)
+	{
+		bCastingDown = false;
+		bCastingAttack = true;
+
+		PaladinPlayerController->DisplaySkillGage();
+		SetInterpToEnemy(true);
+		GetWorldTimerManager().SetTimer(CastingTimer, this, &APaladin::GageUp, 0.5f, true, 0.f);
+
+		UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+		if (AnimInstance && CombatMontage)
+		{
+			AnimInstance->Montage_Play(CombatMontage, 0.5f);
+			AnimInstance->Montage_JumpToSection(FName("Casting"), CombatMontage);
+		}
+	}
+}
+
+void APaladin::CastingSkill()
+{
+	if (MaxGage <= Gage)
+	{
+		UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+
+		if (AnimInstance)
+		{
+			AnimInstance->Montage_Play(CombatMontage, 1.f);
+			AnimInstance->Montage_JumpToSection(FName("CastingAttack"), CombatMontage);
+
+			PaladinPlayerController->RemoveSkillGage();
+		}
+	}
+}
+
+void APaladin::CastingAttack()
+{
+	SetInterpToEnemy(false);
+	TArray<AActor*> IgnoreActor;
+	IgnoreActor.Add(this);
+	IgnoreActor.Add(EquipWeapon);
+	FVector LightningLocation = GetActorLocation();
+
+	UGameplayStatics::ApplyRadialDamage(this, EquipWeapon->CastingDamage, LightningLocation, EquipWeapon->DamageRadial, EquipWeapon->DamageTypeClass, IgnoreActor, this, EquipWeapon->WeaponInstigator, true);
+
+	if (EquipWeapon->CastingParticle)
+	{
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), EquipWeapon->CastingParticle, LightningLocation, GetActorRotation(), false);
+	}
+	if (EquipWeapon->CastingSound)
+	{
+		UGameplayStatics::PlaySound2D(EquipWeapon, EquipWeapon->CastingSound);
+	}
+
+	GetWorldTimerManager().ClearTimer(CastingTimer);
 }
 
 void APaladin::ESCDown()
@@ -747,4 +821,10 @@ void APaladin::SetChargeEnd()
 {
 	Gage = 0;
 	bChargeAttack = false;
+}
+
+void APaladin::SetCastingEnd()
+{
+	Gage = 0;
+	bCastingAttack = false;
 }
