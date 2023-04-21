@@ -323,11 +323,6 @@ void APaladin::Tick(float DeltaTime)
 			PaladinPlayerController->EnemyLocation = CombatTargetLocation;
 		}
 	}
-
-	if(EquipWeapon && bChargeDown)
-	{
-		EquipWeapon->ChargeDamage = Gage;
-	}
 }
 
 // Called to bind functionality to input
@@ -474,6 +469,8 @@ void APaladin::ChargeUp()
 {
 	if(EquipWeapon && bChargeDown)
 	{
+		EquipWeapon->ChargeDamage = Gage;
+
 		SetInterpToEnemy(false);
 		PaladinPlayerController->RemoveSkillGage();
 		GetWorldTimerManager().ClearTimer(ChargeTimer);
