@@ -208,6 +208,25 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void CastingAttack();
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Skill")
+	bool bComboKeyDown;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Skill")
+	bool bComboSecond;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Skill")
+	bool bJumpSecond;
+
+	void ComboDown();
+
+	void ComboUp();
+
+	UFUNCTION(BlueprintCallable)
+	void JumpPermission();
+
+	UFUNCTION(BlueprintCallable)
+	void ComboKeyEnd();
+
 	bool bESCDown;
 
 	void ESCDown();

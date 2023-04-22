@@ -84,6 +84,9 @@ APaladin::APaladin()
 
 	bCastingDown = false;
 	bCastingAttack = false;
+	bComboKeyDown = false;
+	bComboSecond = false;
+	bJumpSecond = false;
 }
 
 void APaladin::SetMovementStatus(EMovementStatus Status)
@@ -349,6 +352,9 @@ void APaladin::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	PlayerInputComponent->BindAction("Casting", IE_Pressed, this, &APaladin::CastingDown);
 	PlayerInputComponent->BindAction("Casting", IE_Released, this, &APaladin::CastingUp);
 
+	PlayerInputComponent->BindAction("Combo", IE_Pressed, this, &APaladin::ComboDown);
+	PlayerInputComponent->BindAction("Combo", IE_Released, this, &APaladin::ComboUp);
+
 	PlayerInputComponent->BindAxis("MoveForward", this, &APaladin::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &APaladin::MoveRight);
 
@@ -557,6 +563,54 @@ void APaladin::CastingAttack()
 	}
 
 	GetWorldTimerManager().ClearTimer(CastingTimer);
+}
+
+void APaladin::ComboDown()
+{
+	if (EquipWeapon)
+	{
+		if (!bComboKeyDown)
+		{
+			bComboKeyDown = true;
+
+			UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+			if (AnimInstance)
+			{
+				AnimInstance->Montage_Play(CombatMontage, 1.5f);
+				AnimInstance->Montage_JumpToSection(FName("ComboAttack_1"), CombatMontage);
+			}
+		}
+		else
+		{
+			if (bJumpSecond && !bComboSecond)
+			{
+				bComboSecond = true;
+				UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+				if (AnimInstance)
+				{
+					AnimInstance->Montage_Play(CombatMontage, 1.f);
+					AnimInstance->Montage_JumpToSection(FName("ComboAttack_2"), CombatMontage);
+				}
+			}
+		}
+	}
+}
+
+void APaladin::ComboUp()
+{
+
+}
+
+void APaladin::JumpPermission()
+{
+	bJumpSecond = true;
+}
+
+void APaladin::ComboKeyEnd()
+{
+	bComboKeyDown = false;
+	bComboSecond = false;
+	bJumpSecond = false;
 }
 
 void APaladin::ESCDown()
