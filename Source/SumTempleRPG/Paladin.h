@@ -36,6 +36,15 @@ public:
 	// Sets default values for this character's properties
 	APaladin();
 
+	FTimerHandle ChargeCoolTimer;
+
+	FTimerHandle CastingCoolTimer;
+
+	FTimerHandle ComboCoolTimer;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "SkillComponent")
+	class USkillComponent* SkillComponent;
+
 	UPROPERTY(EditDefaultsOnly, Category = "SaveData")
 	TSubclassOf<class AItemStorage> WeaponStorage;
 

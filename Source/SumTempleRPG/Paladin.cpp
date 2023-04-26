@@ -16,6 +16,7 @@
 #include "ItemStorage.h"
 #include "PaladinAnimInstance.h"
 #include "PaladinPlayerController.h"
+#include "SkillComponent.h"
 #include "STRSaveGame.h"
 
 // Sets default values
@@ -74,6 +75,8 @@ APaladin::APaladin()
 	bMovingRight = false;
 
 	bESCDown = false;
+
+	SkillComponent = CreateDefaultSubobject<USkillComponent>(TEXT("SkillComponent"));
 
 	MaxGage = 50.f;
 	Gage = 0.f;
@@ -454,7 +457,7 @@ void APaladin::LMBUp()
 
 void APaladin::ChargeDown()
 {
-	if(EquipWeapon && !bChargeDown)
+	if(EquipWeapon && !bChargeDown && SkillComponent->ChargeCoolState <= 0.f)
 	{
 		bChargeDown = true;
 		PaladinPlayerController->DisplaySkillGage();
@@ -488,6 +491,9 @@ void APaladin::ChargeUp()
 			AnimInstance->Montage_JumpToSection(FName("ChargeAttack"), CombatMontage);
 		}
 		bChargeDown = false;
+		SkillComponent->ChargeCoolState = SkillComponent->ChargeCoolDown;
+
+		GetWorldTimerManager().SetTimer(ChargeCoolTimer, this->SkillComponent, &USkillComponent::ChargeCoolInit, 1.0f, true, 0.f);
 	}
 }
 
@@ -501,7 +507,7 @@ void APaladin::GageUp()
 
 void APaladin::CastingDown()
 {
-	if(!bCastingAttack && EquipWeapon)
+	if(!bCastingAttack && EquipWeapon && SkillComponent->CastingCoolState <= 0.f)
 	{
 		bCastingDown = true;
 	}
@@ -549,13 +555,13 @@ void APaladin::CastingAttack()
 	TArray<AActor*> IgnoreActor;
 	IgnoreActor.Add(this);
 	IgnoreActor.Add(EquipWeapon);
-	FVector LightningLocation = GetActorLocation();
+	FVector CastingAttackLocation = GetActorLocation();
 
-	UGameplayStatics::ApplyRadialDamage(this, EquipWeapon->CastingDamage, LightningLocation, EquipWeapon->DamageRadial, EquipWeapon->DamageTypeClass, IgnoreActor, this, EquipWeapon->WeaponInstigator, true);
+	UGameplayStatics::ApplyRadialDamage(this, EquipWeapon->CastingDamage, CastingAttackLocation, EquipWeapon->DamageRadial, EquipWeapon->DamageTypeClass, IgnoreActor, this, EquipWeapon->WeaponInstigator, true);
 
 	if (EquipWeapon->CastingParticle)
 	{
-		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), EquipWeapon->CastingParticle, LightningLocation, GetActorRotation(), false);
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), EquipWeapon->CastingParticle, CastingAttackLocation, GetActorRotation(), false);
 	}
 	if (EquipWeapon->CastingSound)
 	{
@@ -563,14 +569,19 @@ void APaladin::CastingAttack()
 	}
 
 	GetWorldTimerManager().ClearTimer(CastingTimer);
+
+	SkillComponent->CastingCoolState = SkillComponent->CastingCoolDown;
+
+	GetWorldTimerManager().SetTimer(CastingCoolTimer, this->SkillComponent, &USkillComponent::CastingCoolInit, 1.0f, true, 0.f);
 }
 
 void APaladin::ComboDown()
 {
 	if (EquipWeapon)
-	{
+	{	
 		if (!bComboKeyDown)
 		{
+			SetInterpToEnemy(true);
 			bComboKeyDown = true;
 
 			UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
@@ -582,7 +593,7 @@ void APaladin::ComboDown()
 		}
 		else
 		{
-			if (bJumpSecond && !bComboSecond)
+			if (bJumpSecond && !bComboSecond && SkillComponent->ComboCoolState <= 0.f)
 			{
 				bComboSecond = true;
 				UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
@@ -591,6 +602,10 @@ void APaladin::ComboDown()
 					AnimInstance->Montage_Play(CombatMontage, 1.f);
 					AnimInstance->Montage_JumpToSection(FName("ComboAttack_2"), CombatMontage);
 				}
+
+				SkillComponent->ComboCoolState = SkillComponent->ComboCoolDown;
+
+				GetWorldTimerManager().SetTimer(ComboCoolTimer, this->SkillComponent, &USkillComponent::ComboCoolInit, 1.0f, true, 0.f);
 			}
 		}
 	}
@@ -598,7 +613,7 @@ void APaladin::ComboDown()
 
 void APaladin::ComboUp()
 {
-
+	SetInterpToEnemy(false);
 }
 
 void APaladin::JumpPermission()
