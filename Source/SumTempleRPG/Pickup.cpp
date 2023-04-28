@@ -23,7 +23,7 @@ void APickup::Tick(float DeltaSeconds)
 	if(bSineMove)
 	{
 		FVector SineMove = GetActorLocation();
-		SineMove.Z += FMath::Sin(RunningTime);
+		SineMove.Z += FMath::Sin(RunningTime * 2.f);
 		SetActorLocation(SineMove);
 
 		RunningTime += DeltaSeconds;
