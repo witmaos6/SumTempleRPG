@@ -224,50 +224,18 @@ void APaladin::Tick(float DeltaTime)
 
 	float DeltaStamina = StaminaDrainRate * DeltaTime;
 
-	switch (StaminaStatus)
+	if (MovementStatus != EMovementStatus::EMS_Attack)
 	{
-	case EStaminaStatus::ESS_Normal:
-		if(bShiftKeyDown)
+		switch (StaminaStatus)
 		{
-			Stamina -= DeltaStamina;
-			if(Stamina <= MinSprintingStamina)
-			{
-				SetStaminaStatus(EStaminaStatus::ESS_BelowMinimum);
-			}
-			if (bMovingForward || bMovingRight)
-			{
-				SetMovementStatus(EMovementStatus::EMS_Sprinting);
-			}
-			else
-			{
-				SetMovementStatus(EMovementStatus::EMS_Normal);
-			}
-		}
-		else
-		{	
-			if(Stamina + DeltaStamina >= MaxStamina)
-			{
-				Stamina = MaxStamina;
-			}
-			else
-			{
-				Stamina += DeltaStamina;
-			}
-			SetMovementStatus(EMovementStatus::EMS_Normal);
-		}
-		break;
-	case EStaminaStatus::ESS_BelowMinimum:
-		if(bShiftKeyDown)
-		{
-			if(Stamina - DeltaStamina <= 0.f)
-			{
-				SetStaminaStatus(EStaminaStatus::ESS_Exhausted);
-				Stamina = 0;
-				SetMovementStatus(EMovementStatus::EMS_Normal);
-			}
-			else
+		case EStaminaStatus::ESS_Normal:
+			if (bShiftKeyDown)
 			{
 				Stamina -= DeltaStamina;
+				if (Stamina <= MinSprintingStamina)
+				{
+					SetStaminaStatus(EStaminaStatus::ESS_BelowMinimum);
+				}
 				if (bMovingForward || bMovingRight)
 				{
 					SetMovementStatus(EMovementStatus::EMS_Sprinting);
@@ -277,39 +245,74 @@ void APaladin::Tick(float DeltaTime)
 					SetMovementStatus(EMovementStatus::EMS_Normal);
 				}
 			}
-		}
-		else
-		{
-			Stamina += DeltaStamina;
-			if(Stamina + DeltaStamina >= MinSprintingStamina)
+			else
+			{
+				if (Stamina + DeltaStamina >= MaxStamina)
+				{
+					Stamina = MaxStamina;
+				}
+				else
+				{
+					Stamina += DeltaStamina;
+				}
+				SetMovementStatus(EMovementStatus::EMS_Normal);
+			}
+			break;
+		case EStaminaStatus::ESS_BelowMinimum:
+			if (bShiftKeyDown)
+			{
+				if (Stamina - DeltaStamina <= 0.f)
+				{
+					SetStaminaStatus(EStaminaStatus::ESS_Exhausted);
+					Stamina = 0;
+					SetMovementStatus(EMovementStatus::EMS_Normal);
+				}
+				else
+				{
+					Stamina -= DeltaStamina;
+					if (bMovingForward || bMovingRight)
+					{
+						SetMovementStatus(EMovementStatus::EMS_Sprinting);
+					}
+					else
+					{
+						SetMovementStatus(EMovementStatus::EMS_Normal);
+					}
+				}
+			}
+			else
+			{
+				Stamina += DeltaStamina;
+				if (Stamina + DeltaStamina >= MinSprintingStamina)
+				{
+					SetStaminaStatus(EStaminaStatus::ESS_Normal);
+				}
+				SetMovementStatus(EMovementStatus::EMS_Normal);
+			}
+			break;
+		case EStaminaStatus::ESS_Exhausted:
+			if (bShiftKeyDown)
+			{
+				Stamina = 0.f;
+			}
+			else
+			{
+				SetStaminaStatus(EStaminaStatus::ESS_ExhaustedRecovering);
+				Stamina += DeltaStamina;
+			}
+			SetMovementStatus(EMovementStatus::EMS_Normal);
+			break;
+		case EStaminaStatus::ESS_ExhaustedRecovering:
+			if (Stamina + DeltaStamina >= MinSprintingStamina)
 			{
 				SetStaminaStatus(EStaminaStatus::ESS_Normal);
 			}
-			SetMovementStatus(EMovementStatus::EMS_Normal);
-		}
-		break;
-	case EStaminaStatus::ESS_Exhausted:
-		if(bShiftKeyDown)
-		{
-			Stamina = 0.f;
-		}
-		else
-		{
-			SetStaminaStatus(EStaminaStatus::ESS_ExhaustedRecovering);
 			Stamina += DeltaStamina;
+			SetMovementStatus(EMovementStatus::EMS_Normal);
+			break;
+		default:
+			;
 		}
-		SetMovementStatus(EMovementStatus::EMS_Normal);
-		break;
-	case EStaminaStatus::ESS_ExhaustedRecovering:
-		if(Stamina + DeltaStamina >= MinSprintingStamina)
-		{
-			SetStaminaStatus(EStaminaStatus::ESS_Normal);
-		}
-		Stamina += DeltaStamina;
-		SetMovementStatus(EMovementStatus::EMS_Normal);
-		break;
-	default :
-		;
 	}
 
 	if(bInterpToEnemy && CombatTarget)
@@ -371,7 +374,7 @@ void APaladin::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 void APaladin::MoveForward(float Value)
 {
 	bMovingForward = false;
-	if(Controller && Value != 0.0f && (!bAttacking))
+	if(Controller && Value != 0.0f && MovementStatus != EMovementStatus::EMS_Attack)
 	{
 		const FRotator Rotation = Controller->GetControlRotation();
 		const FRotator YawRotation(0.f, Rotation.Yaw, 0.f);
@@ -387,7 +390,7 @@ void APaladin::MoveRight(float Value)
 {
 	bMovingRight = false;
 
-	if (Controller && Value != 0.0f && (!bAttacking))
+	if (Controller && Value != 0.0f && MovementStatus != EMovementStatus::EMS_Attack)
 	{
 		const FRotator Rotation = Controller->GetControlRotation();
 		const FRotator YawRotation(0.f, Rotation.Yaw, 0.f);
@@ -411,7 +414,7 @@ void APaladin::LookUpAtRate(float Rate)
 
 void APaladin::Jump()
 {
-	if(!bAttacking)
+	if(MovementStatus != EMovementStatus::EMS_Attack)
 	{
 		Super::Jump();
 	}
@@ -443,6 +446,7 @@ void APaladin::LMBDown()
 	}
 	else if(EquipWeapon)
 	{
+		MovementStatus = EMovementStatus::EMS_Attack;
 		if(!GetMovementComponent()->IsFalling())
 		{
 			Attack();
@@ -459,6 +463,7 @@ void APaladin::ChargeDown()
 {
 	if(EquipWeapon && !bChargeDown && SkillComponent->ChargeCoolState <= 0.f)
 	{
+		MovementStatus = EMovementStatus::EMS_Attack;
 		bChargeDown = true;
 		PaladinPlayerController->DisplaySkillGage();
 		SetInterpToEnemy(true);
@@ -517,6 +522,7 @@ void APaladin::CastingUp()
 {
 	if(bCastingDown)
 	{
+		MovementStatus = EMovementStatus::EMS_Attack;
 		bCastingDown = false;
 		bCastingAttack = true;
 
@@ -578,7 +584,8 @@ void APaladin::CastingAttack()
 void APaladin::ComboDown()
 {
 	if (EquipWeapon)
-	{	
+	{
+		MovementStatus = EMovementStatus::EMS_Attack;
 		if (!bComboKeyDown)
 		{
 			SetInterpToEnemy(true);
@@ -671,6 +678,7 @@ void APaladin::Attack()
 {	
 	if(!bAttacking)
 	{
+		MovementStatus = EMovementStatus::EMS_Attack;
 		bAttacking = true;
 		SetInterpToEnemy(true);
 
@@ -703,6 +711,7 @@ void APaladin::AttackEnd()
 	{
 		Attack();
 	}
+	MovementStatus = EMovementStatus::EMS_Normal;
 }
 
 void APaladin::PlaySwingSound()
