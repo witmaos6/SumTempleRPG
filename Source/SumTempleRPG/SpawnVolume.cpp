@@ -28,7 +28,7 @@ void ASpawnVolume::BeginPlay()
 		SpawnArray.Add(Actor_2);
 		SpawnArray.Add(Actor_3);
 		SpawnArray.Add(Actor_4);
-	}
+	}	
 }
 
 // Called every frame
