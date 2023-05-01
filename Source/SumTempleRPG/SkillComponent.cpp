@@ -77,6 +77,11 @@ void USkillComponent::ComboCoolInit()
 	}
 }
 
+void USkillComponent::ApplyCoolDown(float& CoolState, float CoolDown)
+{
+	CoolState = CoolDown;
+}
+
 // Called when the game starts
 void USkillComponent::BeginPlay()
 {

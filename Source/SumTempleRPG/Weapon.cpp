@@ -155,3 +155,22 @@ void AWeapon::DeactivateCollision()
 {
 	CombatCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
+
+void AWeapon::RadialAttack()
+{
+	TArray<AActor*> IgnoreActor;
+	IgnoreActor.Add(this);
+	IgnoreActor.Add(OwnerPaladin);
+	FVector CastingAttackLocation = GetActorLocation();
+
+	UGameplayStatics::ApplyRadialDamage(this, CastingDamage, CastingAttackLocation, DamageRadial, DamageTypeClass, IgnoreActor, this, WeaponInstigator, true);
+
+	if (CastingParticle)
+	{
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), CastingParticle, CastingAttackLocation, GetActorRotation(), false);
+	}
+	if (CastingSound)
+	{
+		UGameplayStatics::PlaySound2D(this, CastingSound);
+	}
+}

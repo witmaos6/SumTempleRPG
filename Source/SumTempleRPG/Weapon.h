@@ -103,4 +103,6 @@ public:
 	APaladin* OwnerPaladin;
 
 	FORCEINLINE void SetInstigator(AController* Inst) { WeaponInstigator = Inst; }
+
+	void RadialAttack();
 };

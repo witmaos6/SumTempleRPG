@@ -40,6 +40,8 @@ public:
 
 	void ComboCoolInit();
 
+	void ApplyCoolDown(float& CoolState, float CoolDown);
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;

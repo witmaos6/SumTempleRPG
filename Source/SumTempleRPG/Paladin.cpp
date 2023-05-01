@@ -496,7 +496,7 @@ void APaladin::ChargeUp()
 			AnimInstance->Montage_JumpToSection(FName("ChargeAttack"), CombatMontage);
 		}
 		bChargeDown = false;
-		SkillComponent->ChargeCoolState = SkillComponent->ChargeCoolDown;
+		SkillComponent->ApplyCoolDown(SkillComponent->ChargeCoolState, SkillComponent->ChargeCoolDown);
 
 		GetWorldTimerManager().SetTimer(ChargeCoolTimer, this->SkillComponent, &USkillComponent::ChargeCoolInit, 1.0f, true, 0.f);
 	}
@@ -553,30 +553,16 @@ void APaladin::CastingSkill()
 			PaladinPlayerController->RemoveSkillGage();
 		}
 	}
+	SetInterpToEnemy(false);
 }
 
 void APaladin::CastingAttack()
 {
-	SetInterpToEnemy(false);
-	TArray<AActor*> IgnoreActor;
-	IgnoreActor.Add(this);
-	IgnoreActor.Add(EquipWeapon);
-	FVector CastingAttackLocation = GetActorLocation();
-
-	UGameplayStatics::ApplyRadialDamage(this, EquipWeapon->CastingDamage, CastingAttackLocation, EquipWeapon->DamageRadial, EquipWeapon->DamageTypeClass, IgnoreActor, this, EquipWeapon->WeaponInstigator, true);
-
-	if (EquipWeapon->CastingParticle)
-	{
-		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), EquipWeapon->CastingParticle, CastingAttackLocation, GetActorRotation(), false);
-	}
-	if (EquipWeapon->CastingSound)
-	{
-		UGameplayStatics::PlaySound2D(EquipWeapon, EquipWeapon->CastingSound);
-	}
+	EquipWeapon->RadialAttack();
 
 	GetWorldTimerManager().ClearTimer(CastingTimer);
 
-	SkillComponent->CastingCoolState = SkillComponent->CastingCoolDown;
+	SkillComponent->ApplyCoolDown(SkillComponent->CastingCoolState, SkillComponent->CastingCoolDown);
 
 	GetWorldTimerManager().SetTimer(CastingCoolTimer, this->SkillComponent, &USkillComponent::CastingCoolInit, 1.0f, true, 0.f);
 }
@@ -610,7 +596,7 @@ void APaladin::ComboDown()
 					AnimInstance->Montage_JumpToSection(FName("ComboAttack_2"), CombatMontage);
 				}
 
-				SkillComponent->ComboCoolState = SkillComponent->ComboCoolDown;
+				SkillComponent->ApplyCoolDown(SkillComponent->ComboCoolState, SkillComponent->ComboCoolDown);
 
 				GetWorldTimerManager().SetTimer(ComboCoolTimer, this->SkillComponent, &USkillComponent::ComboCoolInit, 1.0f, true, 0.f);
 			}
