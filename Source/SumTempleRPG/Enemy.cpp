@@ -16,6 +16,7 @@
 #include "Animation/AnimInstance.h"
 #include "TimerManager.h"
 #include "Components/CapsuleComponent.h"
+#include "Kismet/KismetMathLibrary.h"
 
 
 // Sets default values
@@ -89,6 +90,14 @@ void AEnemy::Tick(float DeltaTime)
 	{
 		bDead = true;
 	}
+
+	if(bOverlappingCombatSphere)
+	{
+		if(CombatTarget)
+		{
+			SetInterpCharacter(DeltaTime, CombatTarget);
+		}
+	}
 }
 
 // Called to bind functionality to input
@@ -149,7 +158,6 @@ void AEnemy::CombatSphereOnOverlapBegin(UPrimitiveComponent* OverlappedComponent
 			bHasValidTarget = true;
 			Paladin->SetCombatTarget(this);
 			Paladin->SetHasCombatTarget(true);
-
 			Paladin->UpdateCombatTarget();
 
 			CombatTarget = Paladin;
@@ -201,7 +209,7 @@ void AEnemy::MoveToTarget(APaladin* Target)
 	{
 		FAIMoveRequest MoveRequest;
 		MoveRequest.SetGoalActor(Target);
-		MoveRequest.SetAcceptanceRadius(10.0f);
+		MoveRequest.SetAcceptanceRadius(20.0f);
 
 		FNavPathSharedPtr NavPath;
 
@@ -351,4 +359,18 @@ bool AEnemy::Alive()
 void AEnemy::Disappear()
 {
 	Destroy();
+}
+
+void AEnemy::SetInterpCharacter(float DeltaTime, APaladin* Actor)
+{
+	APaladin* Paladin = Cast<APaladin>(Actor);
+
+	if(Paladin)
+	{
+		FRotator LookAtRotation = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), Paladin->GetActorLocation());
+		FRotator LookAtRotationYaw = FRotator(0.f, LookAtRotation.Yaw, 0.f);
+		FRotator InterpRotation = FMath::RInterpTo(GetActorRotation(), LookAtRotationYaw, DeltaTime, 15.f);
+
+		SetActorRotation(InterpRotation);
+	}
 }

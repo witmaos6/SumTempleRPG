@@ -149,4 +149,6 @@ public:
 	bool Alive();
 
 	void Disappear();
+
+	void SetInterpCharacter(float DeltaTime, APaladin* Actor);
 };
