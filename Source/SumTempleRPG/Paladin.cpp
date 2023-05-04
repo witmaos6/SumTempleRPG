@@ -16,6 +16,7 @@
 #include "ItemStorage.h"
 #include "PaladinAnimInstance.h"
 #include "PaladinPlayerController.h"
+#include "Skill.h"
 #include "SkillComponent.h"
 #include "STRSaveGame.h"
 
@@ -90,6 +91,7 @@ APaladin::APaladin()
 	bComboKeyDown = false;
 	bComboSecond = false;
 	bJumpSecond = false;
+	bSkillDown = false;
 }
 
 void APaladin::SetMovementStatus(EMovementStatus Status)
@@ -351,6 +353,9 @@ void APaladin::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 	PlayerInputComponent->BindAction("LMB", IE_Pressed, this, &APaladin::LMBDown);
 	PlayerInputComponent->BindAction("LMB", IE_Released, this, &APaladin::LMBUp);
+
+	PlayerInputComponent->BindAction("Skill", IE_Pressed, this, &APaladin::SkillDown);
+	PlayerInputComponent->BindAction("Skill", IE_Released, this, &APaladin::SkillUp);
 
 	PlayerInputComponent->BindAction("Charge", IE_Pressed, this, &APaladin::ChargeDown);
 	PlayerInputComponent->BindAction("Charge", IE_Released, this, &APaladin::ChargeUp);
@@ -658,6 +663,30 @@ void APaladin::SetEquipWeapon(AWeapon* WeaponToSet)
 	}
 
 	EquipWeapon = WeaponToSet;
+}
+
+void APaladin::SkillDown()
+{
+	if(!bSkillDown)
+	{
+		bSkillDown = true;
+		if(Skill)
+		{
+			FVector SkillLocation = GetActorLocation();
+
+			FActorSpawnParameters SpawnParameters;
+			SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+			GetWorld()->SpawnActor<AActor>(Skill, SkillLocation, GetActorRotation(), SpawnParameters);
+		}
+	}
+}
+
+void APaladin::SkillUp()
+{
+	if(bSkillDown)
+	{
+		bSkillDown = false;
+	}
 }
 
 void APaladin::Attack()

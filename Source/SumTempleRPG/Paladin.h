@@ -243,6 +243,16 @@ public:
 
 	void ESCUp();
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Skill")
+	bool bSkillDown;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Skill")
+	TSubclassOf<AActor> Skill;
+
+	void SkillDown();
+
+	void SkillUp();
+
 	FTimerHandle ChargeTimer;
 
 	FTimerHandle CastingTimer;
