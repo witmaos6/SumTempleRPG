@@ -247,7 +247,7 @@ public:
 	bool bSkillDown;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Skill")
-	TSubclassOf<AActor> Skill;
+	TSubclassOf<AActor> Skill; // To do: TArray로 바꿔서 관리해야 할 필요가 있어 보인다.
 
 	void SkillDown();
 

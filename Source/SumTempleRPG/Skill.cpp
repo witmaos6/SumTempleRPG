@@ -5,6 +5,7 @@
 
 #include "DrawDebugHelpers.h"
 #include "Enemy.h"
+#include "Paladin.h"
 #include "Components/SphereComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundCue.h"
@@ -28,7 +29,7 @@ void ASkill::BeginPlay()
 {
 	CollisionSphere->OnComponentBeginOverlap.AddDynamic(this, &ASkill::CollisionSphereOnOverlapBegin);
 	CollisionSphere->OnComponentEndOverlap.AddDynamic(this, &ASkill::CollisionSphereOnOverlapEnd);
-	SpawnEffect(GetActorLocation());
+	SpawnEffect(GetActorLocation()); // 스폰 위치를 Paladin 을 기준으로 앞에 하고 싶은데 도저히 답이 안나온다.
 }
 
 void ASkill::SpawnEffect(const FVector& Location)
@@ -55,11 +56,6 @@ void ASkill::CollisionSphereOnOverlapBegin(UPrimitiveComponent* OverlappedCompon
 
 void ASkill::CollisionSphereOnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	AEnemy* Enemy = Cast<AEnemy>(OtherActor);
-
-	if(Enemy)
-	{
-		Destroy();
-	}
+	// 액터의 소멸은 경우의 수가 다양하기 때문에 여기서 설정할 수 없다고 생각된다.
 }
 

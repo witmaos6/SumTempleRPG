@@ -16,7 +16,7 @@ public:
 	ASkill();
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Skill")
-	class USphereComponent* CollisionSphere;
+	class USphereComponent* CollisionSphere; // 충돌 감지가 Box일 수도 있는데 어떤 식으로 설계를 해야할까?
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Skill")
 	float CollisionRadius;
@@ -32,6 +32,7 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "SkillEffect")
 	class USoundCue* SkillSound;
+
 protected:
 	virtual void BeginPlay() override;
 

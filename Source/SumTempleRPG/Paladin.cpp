@@ -532,7 +532,6 @@ void APaladin::CastingUp()
 		bCastingAttack = true;
 
 		PaladinPlayerController->DisplaySkillGage();
-		SetInterpToEnemy(true);
 		GetWorldTimerManager().SetTimer(CastingTimer, this, &APaladin::GageUp, 0.5f, true, 0.f);
 
 		UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
@@ -558,12 +557,13 @@ void APaladin::CastingSkill()
 			PaladinPlayerController->RemoveSkillGage();
 		}
 	}
-	SetInterpToEnemy(false);
 }
 
 void APaladin::CastingAttack()
 {
-	EquipWeapon->RadialAttack();
+	FActorSpawnParameters SpawnParameters;
+	SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	GetWorld()->SpawnActor<AActor>(Skill, GetActorLocation(), GetActorRotation(), SpawnParameters);
 
 	GetWorldTimerManager().ClearTimer(CastingTimer);
 
