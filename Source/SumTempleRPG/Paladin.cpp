@@ -670,14 +670,25 @@ void APaladin::SkillDown()
 	if(!bSkillDown)
 	{
 		bSkillDown = true;
-		if(Skill)
+		MovementStatus = EMovementStatus::EMS_Attack;
+		UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+		if(AnimInstance && SkillMontage)
 		{
-			FVector SkillLocation = GetActorLocation();
-
-			FActorSpawnParameters SpawnParameters;
-			SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-			GetWorld()->SpawnActor<AActor>(Skill, SkillLocation, GetActorRotation(), SpawnParameters);
+			AnimInstance->Montage_Play(SkillMontage, 1.f);
+			AnimInstance->Montage_JumpToSection(FName("MagicAttack"), SkillMontage);
 		}
+	}
+}
+
+void APaladin::SkillShot()
+{
+	if (Skill)
+	{
+		FVector SkillLocation = GetActorLocation();
+
+		FActorSpawnParameters SpawnParameters;
+		SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+		GetWorld()->SpawnActor<AActor>(Skill, SkillLocation, GetActorRotation(), SpawnParameters);
 	}
 }
 

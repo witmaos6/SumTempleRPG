@@ -247,9 +247,12 @@ public:
 	bool bSkillDown;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Skill")
-	TSubclassOf<AActor> Skill; // To do: TArray로 바꿔서 관리해야 할 필요가 있어 보인다.
+	TSubclassOf<class ASkill> Skill; // To do: TArray로 바꿔서 관리해야 할 필요가 있어 보인다.
 
 	void SkillDown();
+
+	UFUNCTION(BlueprintCallable)
+	void SkillShot();
 
 	void SkillUp();
 
@@ -279,6 +282,9 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Anims")
 	UAnimMontage* CombatMontage;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Anims")
+	UAnimMontage* SkillMontage;
 
 	UFUNCTION(BlueprintCallable)
 	void PlaySwingSound();

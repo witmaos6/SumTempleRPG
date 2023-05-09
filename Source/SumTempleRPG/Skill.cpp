@@ -29,7 +29,9 @@ void ASkill::BeginPlay()
 {
 	CollisionSphere->OnComponentBeginOverlap.AddDynamic(this, &ASkill::CollisionSphereOnOverlapBegin);
 	CollisionSphere->OnComponentEndOverlap.AddDynamic(this, &ASkill::CollisionSphereOnOverlapEnd);
-	SpawnEffect(GetActorLocation()); // 스폰 위치를 Paladin 을 기준으로 앞에 하고 싶은데 도저히 답이 안나온다.
+
+	FVector SpawnLocation = GetActorLocation();
+	SpawnEffect(SpawnLocation); // 스폰 위치를 Paladin 을 기준으로 앞에 하고 싶은데 도저히 답이 안나온다.
 }
 
 void ASkill::SpawnEffect(const FVector& Location)
@@ -52,6 +54,8 @@ void ASkill::CollisionSphereOnOverlapBegin(UPrimitiveComponent* OverlappedCompon
 	{
 		UGameplayStatics::ApplyDamage(Enemy, SkillDamage, GetInstigatorController(), this, DamageTypeClass);
 	}
+
+	Destroy(); // Temp
 }
 
 void ASkill::CollisionSphereOnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
