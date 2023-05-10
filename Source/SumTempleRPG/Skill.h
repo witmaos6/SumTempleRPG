@@ -17,6 +17,7 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Skill")
 	class USphereComponent* CollisionSphere; // 충돌 감지가 Box일 수도 있는데 어떤 식으로 설계를 해야할까?
+	// Skill을 상속받은 파생클래스에서 선언하는 것이 지금 현재로서는 가장 적절해 보인다.
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Skill")
 	float CollisionRadius;

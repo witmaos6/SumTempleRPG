@@ -28,6 +28,17 @@ enum class EStaminaStatus : uint8
 	ESS_MAX UMETA(DisplayName = "DefaultMAX")
 };
 
+UENUM(BlueprintType)
+enum class EAttackStatus : uint8
+{
+	EAS_Normal UMETA(DisplayName = "Normal"),
+	EAS_FirstAttack UMETA(DisplayName = "FirstAttack"),
+	EAS_SecondAttack UMETA(DisplayName = "SecondAttack"),
+	EAS_ThirdAttack UMETA(DisplayName = "ThirdAttack"),
+
+	EAS_MAX UMETA(DisplayName = "DefaultMAX")
+};
+
 UCLASS()
 class SUMTEMPLERPG_API APaladin : public ACharacter
 {
@@ -36,6 +47,10 @@ class SUMTEMPLERPG_API APaladin : public ACharacter
 public:
 	// Sets default values for this character's properties
 	APaladin();
+
+	EAttackStatus AttackStatus;
+
+	FORCEINLINE void SetAttackStatus(EAttackStatus Status) { AttackStatus = Status; }
 
 	FTimerHandle ChargeCoolTimer;
 
@@ -285,6 +300,9 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Anims")
 	UAnimMontage* SkillMontage;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Anims")
+	UAnimMontage* NormalAttackMontage;
 
 	UFUNCTION(BlueprintCallable)
 	void PlaySwingSound();

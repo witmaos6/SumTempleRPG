@@ -92,6 +92,8 @@ APaladin::APaladin()
 	bComboSecond = false;
 	bJumpSecond = false;
 	bSkillDown = false;
+
+	AttackStatus = EAttackStatus::EAS_Normal;
 }
 
 void APaladin::SetMovementStatus(EMovementStatus Status)
@@ -702,29 +704,32 @@ void APaladin::SkillUp()
 
 void APaladin::Attack()
 {	
-	if(!bAttacking)
-	{
-		MovementStatus = EMovementStatus::EMS_Attack;
-		bAttacking = true;
-		SetInterpToEnemy(true);
+	bAttacking = true;
+	SetInterpToEnemy(true);
 
-		UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
-		if(AnimInstance && CombatMontage)
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if(AnimInstance && NormalAttackMontage)
+	{
+		switch (AttackStatus)
 		{
-			int32 Section = FMath::RandRange(0, 1);
-			switch (Section)
-			{
-			case 0:
-				AnimInstance->Montage_Play(CombatMontage, 1.8f);
-				AnimInstance->Montage_JumpToSection(FName("Attack_1"), CombatMontage);
-				break;
-			case 1:
-				AnimInstance->Montage_Play(CombatMontage, 2.2f);
-				AnimInstance->Montage_JumpToSection(FName("Attack_2"), CombatMontage);
-				break;
-			default:
-					;
-			}
+		case EAttackStatus::EAS_Normal :
+			SetAttackStatus(EAttackStatus::EAS_FirstAttack);
+			AnimInstance->Montage_Play(NormalAttackMontage, 1.3f);
+			AnimInstance->Montage_JumpToSection(FName("FirstAttack"), NormalAttackMontage);
+			break;
+		case EAttackStatus::EAS_FirstAttack :
+			SetAttackStatus(EAttackStatus::EAS_SecondAttack);
+			AnimInstance->Montage_Play(NormalAttackMontage, 1.5f);
+			AnimInstance->Montage_JumpToSection(FName("SecondAttack"), NormalAttackMontage);
+			break;
+		case EAttackStatus::EAS_SecondAttack :
+			SetAttackStatus(EAttackStatus::EAS_ThirdAttack);
+			AnimInstance->Montage_Play(NormalAttackMontage, 2.0f);
+			AnimInstance->Montage_JumpToSection(FName("ThirdAttack"), NormalAttackMontage);
+			break;
+		default :
+			SetAttackStatus(EAttackStatus::EAS_Normal);
+			break;
 		}
 	}
 }
