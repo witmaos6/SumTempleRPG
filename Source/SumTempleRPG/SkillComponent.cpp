@@ -19,10 +19,23 @@ USkillComponent::USkillComponent()
 	ComboCoolDown = 5.f;
 }
 
+// Called when the game starts
+void USkillComponent::BeginPlay()
+{
+	Super::BeginPlay();
+
+}
+
+
+// Called every frame
+void USkillComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+{
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+}
 
 void USkillComponent::ChargeCoolInit()
 {
-	if(ChargeCoolState > 0.f)
+	if (ChargeCoolState > 0.f)
 	{
 		ChargeCoolState -= 1.f;
 	}
@@ -32,7 +45,7 @@ void USkillComponent::ChargeCoolInit()
 
 		APaladin* Paladin = Cast<APaladin>(MyActor);
 
-		if(Paladin)
+		if (Paladin)
 		{
 			Paladin->GetWorldTimerManager().ClearTimer(Paladin->ChargeCoolTimer);
 		}
@@ -41,7 +54,7 @@ void USkillComponent::ChargeCoolInit()
 
 void USkillComponent::CastingCoolInit()
 {
-	if(CastingCoolState > 0.f)
+	if (CastingCoolState > 0.f)
 	{
 		CastingCoolState -= 1.f;
 	}
@@ -81,18 +94,3 @@ void USkillComponent::ApplyCoolDown(float& CoolState, float CoolDown)
 {
 	CoolState = CoolDown;
 }
-
-// Called when the game starts
-void USkillComponent::BeginPlay()
-{
-	Super::BeginPlay();
-
-}
-
-
-// Called every frame
-void USkillComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-}
-

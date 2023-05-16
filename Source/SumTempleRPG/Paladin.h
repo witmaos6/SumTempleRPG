@@ -58,6 +58,8 @@ public:
 
 	FTimerHandle ComboCoolTimer;
 
+	FTimerHandle SkillDestroyTimer;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "SkillComponent")
 	class USkillComponent* SkillComponent;
 

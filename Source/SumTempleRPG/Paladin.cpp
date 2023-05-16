@@ -92,8 +92,6 @@ APaladin::APaladin()
 	bComboSecond = false;
 	bJumpSecond = false;
 	bSkillDown = false;
-
-	AttackStatus = EAttackStatus::EAS_Normal;
 }
 
 void APaladin::SetMovementStatus(EMovementStatus Status)
@@ -201,6 +199,7 @@ void APaladin::BeginPlay()
 
 	MovementStatus = EMovementStatus::EMS_Normal;
 	StaminaStatus = EStaminaStatus::ESS_Normal;
+	AttackStatus = EAttackStatus::EAS_Normal;
 
 	PaladinPlayerController = Cast<APaladinPlayerController>(GetController());
 
@@ -687,10 +686,11 @@ void APaladin::SkillShot()
 	if (Skill)
 	{
 		FVector SkillLocation = GetActorLocation();
+		FRotator SkillRotation = Controller->GetControlRotation();
 
 		FActorSpawnParameters SpawnParameters;
 		SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-		GetWorld()->SpawnActor<AActor>(Skill, SkillLocation, GetActorRotation(), SpawnParameters);
+		GetWorld()->SpawnActor<ASkill>(Skill, SkillLocation, SkillRotation, SpawnParameters);
 	}
 }
 
@@ -706,7 +706,7 @@ void APaladin::Attack()
 {	
 	bAttacking = true;
 	SetInterpToEnemy(true);
-
+	// 공격과 공격 사이에 딜레이가 있어야 자연스러운 모션이 나올 것 같다. 수업에서 딜레이를 주던 방식은 GetWorld()->TimeSeconds를 이용하는데 효율성이 좋은지 모르겠다.
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 	if(AnimInstance && NormalAttackMontage)
 	{
@@ -742,6 +742,7 @@ void APaladin::AttackEnd()
 	{
 		Attack();
 	}
+	AttackStatus = EAttackStatus::EAS_Normal;
 	MovementStatus = EMovementStatus::EMS_Normal;
 }
 

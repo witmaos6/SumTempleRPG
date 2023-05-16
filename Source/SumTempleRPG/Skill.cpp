@@ -5,8 +5,6 @@
 
 #include "DrawDebugHelpers.h"
 #include "Enemy.h"
-#include "Paladin.h"
-#include "Weapon.h"
 #include "Components/SphereComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundCue.h"
@@ -30,7 +28,9 @@ void ASkill::BeginPlay()
 {
 	CollisionSphere->OnComponentBeginOverlap.AddDynamic(this, &ASkill::CollisionSphereOnOverlapBegin);
 	CollisionSphere->OnComponentEndOverlap.AddDynamic(this, &ASkill::CollisionSphereOnOverlapEnd);
-	SpawnEffect(GetActorLocation());
+
+	FVector SkillLocation = GetActorLocation();
+	SpawnEffect(SkillLocation); // 탑 다운 에서는 마우스의 위치 정보가 있으니 그것을 이용하면 원하는 방향으로 액터 스폰이 가능할 것 같다.
 }
 
 void ASkill::SpawnEffect(const FVector& Location)
@@ -53,8 +53,6 @@ void ASkill::CollisionSphereOnOverlapBegin(UPrimitiveComponent* OverlappedCompon
 	{
 		UGameplayStatics::ApplyDamage(Enemy, SkillDamage, GetInstigatorController(), this, DamageTypeClass);
 	}
-
-	Destroy(); // Temp
 }
 
 void ASkill::CollisionSphereOnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)

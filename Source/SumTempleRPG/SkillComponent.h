@@ -34,13 +34,11 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Skill")
 	float ComboCoolState;
 
-	void ChargeCoolInit();
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Skill")
+	float MaxGage;
 
-	void CastingCoolInit();
-
-	void ComboCoolInit();
-
-	void ApplyCoolDown(float& CoolState, float CoolDown);
+	UPROPERTY(BlueprintReadOnly, Category = "Skill")
+	float Gage;
 
 protected:
 	// Called when the game starts
@@ -50,5 +48,11 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-		
+	void ChargeCoolInit();
+
+	void CastingCoolInit();
+
+	void ComboCoolInit();
+
+	void ApplyCoolDown(float& CoolState, float CoolDown);
 };
