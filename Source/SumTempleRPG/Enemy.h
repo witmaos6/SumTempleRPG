@@ -85,7 +85,10 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
 	bool bDead;
 
-	int32 DropCoin;
+	int32 NrOfDrop;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Item")
+	TSubclassOf<class AItem> DropItem;
 
 protected:
 	// Called when the game starts or when spawned

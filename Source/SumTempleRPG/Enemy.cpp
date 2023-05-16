@@ -53,14 +53,15 @@ AEnemy::AEnemy()
 	bHasValidTarget = false;
 
 	bDead = false;
-	DropCoin = FMath::RandRange(1, 3);
+	NrOfDrop = 1;
 }
 
 // Called when the game starts or when spawned
 void AEnemy::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	NrOfDrop = FMath::RandRange(1, 3);
 	AIController = Cast<AAIController>(GetController());
 
 	AgroSphere->OnComponentBeginOverlap.AddDynamic(this, &AEnemy::AgroSphereOnOverlapBegin);
@@ -347,6 +348,14 @@ void AEnemy::DeathEnd()
 {
 	GetMesh()->bPauseAnims = true;
 	GetMesh()->bNoSkeletonUpdate = true;
+
+	FActorSpawnParameters SpawnParameters;
+	SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+	for(int32 i = 0; i < NrOfDrop; i++)
+	{
+		GetWorld()->SpawnActor<AItem>(DropItem, GetActorLocation(), GetActorRotation(), SpawnParameters);
+	}
 
 	GetWorldTimerManager().SetTimer(DeathTimer, this, &AEnemy::Disappear, DeathDelay);
 }
