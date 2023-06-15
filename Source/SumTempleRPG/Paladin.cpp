@@ -81,7 +81,7 @@ APaladin::APaladin()
 
 	MaxGage = 50.f;
 	Gage = 0.f;
-	GageRate = 10.f;
+	GageRate = 50.f;
 
 	bChargeDown = false;
 	bChargeAttack = false;
@@ -447,6 +447,7 @@ void APaladin::LMBDown()
 		if(Weapon)
 		{
 			Weapon->Equip(this);
+			Weapon->SetOwner(this);
 			SetActiveOverlappingItem(nullptr);
 		}
 	}
@@ -480,7 +481,8 @@ void APaladin::ChargeDown()
 			AnimInstance->Montage_Play(CombatMontage, 0.5f);
 			AnimInstance->Montage_JumpToSection(FName("ReadyCharge"), CombatMontage);
 
-			GetWorldTimerManager().SetTimer(ChargeTimer, this, &APaladin::GageUp, 0.5f, true, 0.0f);
+			float DeltaSecond = GetWorld()->GetDeltaSeconds();
+			GetWorldTimerManager().SetTimer(ChargeTimer, this, &APaladin::GageUp, DeltaSecond, true, 0.0f);
 		}
 	}
 }
@@ -512,7 +514,7 @@ void APaladin::GageUp()
 {
 	if(MaxGage >= Gage)
 	{
-		Gage += GageRate;
+		Gage += GageRate * GetWorld()->GetDeltaSeconds();
 	}
 }
 
@@ -533,12 +535,14 @@ void APaladin::CastingUp()
 		bCastingAttack = true;
 
 		PaladinPlayerController->DisplaySkillGage();
-		GetWorldTimerManager().SetTimer(CastingTimer, this, &APaladin::GageUp, 0.5f, true, 0.f);
+		float DeltaSecond = GetWorld()->GetDeltaSeconds();
+
+		GetWorldTimerManager().SetTimer(CastingTimer, this, &APaladin::GageUp, DeltaSecond, true, 0.f);
 
 		UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 		if (AnimInstance && CombatMontage)
 		{
-			AnimInstance->Montage_Play(CombatMontage, 0.5f);
+			AnimInstance->Montage_Play(CombatMontage, 1.f);
 			AnimInstance->Montage_JumpToSection(FName("Casting"), CombatMontage);
 		}
 	}
@@ -564,7 +568,7 @@ void APaladin::CastingAttack()
 {
 	FActorSpawnParameters SpawnParameters;
 	SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-	GetWorld()->SpawnActor<AActor>(Skill, GetActorLocation(), GetActorRotation(), SpawnParameters);
+	CurrentSkill = GetWorld()->SpawnActor<ASkill>(SetSkill, GetActorLocation(), GetActorRotation(), SpawnParameters);
 
 	GetWorldTimerManager().ClearTimer(CastingTimer);
 
@@ -683,14 +687,14 @@ void APaladin::SkillDown()
 
 void APaladin::SkillShot()
 {
-	if (Skill)
+	if (SetSkill)
 	{
 		FVector SkillLocation = GetActorLocation();
 		FRotator SkillRotation = Controller->GetControlRotation();
 
 		FActorSpawnParameters SpawnParameters;
 		SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-		GetWorld()->SpawnActor<ASkill>(Skill, SkillLocation, SkillRotation, SpawnParameters);
+		GetWorld()->SpawnActor<ASkill>(SetSkill, SkillLocation, SkillRotation, SpawnParameters);
 	}
 }
 

@@ -34,12 +34,19 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "SkillEffect")
 	class USoundCue* SkillSound;
 
+	FTimerHandle DisappearTimer;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Skill")
+	float DisappearDelay;
+
 protected:
 	virtual void BeginPlay() override;
 
 public:
 	UFUNCTION(BlueprintCallable)
 	void SpawnEffect(const FVector& Location);
+
+	void Disappear();
 
 	UFUNCTION()
 	virtual void CollisionSphereOnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);

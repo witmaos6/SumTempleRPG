@@ -18,19 +18,24 @@ ASkill::ASkill()
 	SkillDamage = 50.f;
 	CollisionRadius = 350.f;
 
+	DisappearDelay = 1.f;
+
 	CollisionSphere = CreateDefaultSubobject<USphereComponent>(TEXT("CollisionSphere"));
-	RootComponent = CollisionSphere;
 	CollisionSphere->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldDynamic, ECollisionResponse::ECR_Ignore);
 	CollisionSphere->InitSphereRadius(CollisionRadius);
 }
 
 void ASkill::BeginPlay()
 {
+	Super::BeginPlay();
+
 	CollisionSphere->OnComponentBeginOverlap.AddDynamic(this, &ASkill::CollisionSphereOnOverlapBegin);
 	CollisionSphere->OnComponentEndOverlap.AddDynamic(this, &ASkill::CollisionSphereOnOverlapEnd);
 
 	FVector SkillLocation = GetActorLocation();
 	SpawnEffect(SkillLocation); // 탑 다운 에서는 마우스의 위치 정보가 있으니 그것을 이용하면 원하는 방향으로 액터 스폰이 가능할 것 같다.
+
+	GetWorldTimerManager().SetTimer(DisappearTimer, this, &ASkill::Disappear, DisappearDelay);
 }
 
 void ASkill::SpawnEffect(const FVector& Location)
@@ -43,6 +48,11 @@ void ASkill::SpawnEffect(const FVector& Location)
 	{
 		UGameplayStatics::PlaySound2D(this, SkillSound);
 	}
+}
+
+void ASkill::Disappear()
+{
+	Destroy();
 }
 
 void ASkill::CollisionSphereOnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
